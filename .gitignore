@@ -16,7 +16,12 @@
 /templates/element/esign_views/renewal_grant_declaration_message.php
 /templates/element/esign_views/re_esign_pdf_popup.php
 /templates/element/replica/replica_approval_esign_consent.php
-
+applications.html
+bitnami.css
+/dashboard/*
+favicon.ico
+/img/*
+/xampp/*
 # OS generated files #
 ######################
 .DS_Store

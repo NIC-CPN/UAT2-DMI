@@ -30,11 +30,11 @@ class BeforepageloadComponent extends Component {
 
 	//This method is used to update logout time in dmi_customer_logs or dmi_user_logs table on every request for current logged in person.
 	public function setLogoutTime() {
-		
+
 		//Load Models in Component
 		$DmiUserLogs = TableRegistry::getTableLocator()->get('DmiUserLogs');
 		$DmiCustomerLogs = TableRegistry::getTableLocator()->get('DmiCustomerLogs');
-		
+
 		if ($this->Session->read('username') != null) {
 
 			$username_id = $this->Session->read('username');
@@ -47,7 +47,7 @@ class BeforepageloadComponent extends Component {
 				$find_id_list = $DmiUserLogs->find('list', array('valueField'=>'id','conditions'=>array('email_id IS'=>$username_id)))->toList();
 
 				if (!empty($find_id_list)) {
-					
+
 					$find_max_id = $DmiUserLogs->find('all', array('fields'=>'id','conditions'=>array('id'=>max($find_id_list))))->first();
 					$max_id = $find_max_id['id'];
 					$DmiUserLogsEntity = $DmiUserLogs->newEntity(array('id'=>$max_id,'time_out'=>date('H:i:s')));
@@ -74,7 +74,7 @@ class BeforepageloadComponent extends Component {
 	}
 
 
-	
+
 	//This method is used to set and display site menus from database
 	public function set_site_menus() {
 
@@ -110,13 +110,13 @@ class BeforepageloadComponent extends Component {
 
 		// Display Single page from database
 		if ($this->getController()->getRequest()->getParam('controller')=='Pages' && $this->getController()->getRequest()->getAttribute("here") != $this->getController()->getRequest()->getAttribute("webroot")) {
-			
+
 			if ($this->getController()->getRequest()->getQuery('$type') == 'page') {
 
 				$pagetype = $this->getController()->getRequest()->getQuery('$type');
 				$pageid = $this->getController()->getRequest()->getQuery('$page');
 				$checkpageid = $Dmi_page->find('all',array('fields'=>'id', 'conditions'=> array('id IS' => $pageid)))->first();
-			
+
 				if ($checkpageid['id'] != '') {
 
 					$pagecontents = $Dmi_page->find('all', array('conditions'=>array('id IS'=>$pageid)))->first();
@@ -132,7 +132,7 @@ class BeforepageloadComponent extends Component {
 					$this->Controller->set('meta_description', $meta_description);
 					$this->Controller->set('pagetitle', $pagetitle);
 					$this->Controller->set('pagedata', $pagedata);
-				
+
 				} else {
 					$this->Flash->error('Requested page not found');
 				}
@@ -148,7 +148,7 @@ class BeforepageloadComponent extends Component {
 				} else {
 					$this->Flash->error('Requested page not found');
 				}
-			
+
 			} elseif ($this->getController()->getRequest()->getQuery('$type') == 'external') {
 
 					$pagetype = $this->getController()->getRequest()->getQuery('$type');
@@ -192,10 +192,10 @@ class BeforepageloadComponent extends Component {
 		$all_granted_applications = $DmiGrantCertificatesPdfs->find('all',array('fields'=>'customer_id','group'=>'customer_id'))->toArray();
 
 		foreach ($all_granted_applications as $each) {
-			
+
 			$customer_id = $each['customer_id'];
 			$each_application_list = $DmiGrantCertificatesPdfs->find('list',array('conditions'=>array('customer_id IS'=>$customer_id)))->toArray();
-			
+
 			if (!empty($each_application_list)) {
 
 				$last_grant_details = $DmiGrantCertificatesPdfs->find('all',array('conditions'=>array('id'=>max($each_application_list))))->first();
@@ -230,27 +230,27 @@ class BeforepageloadComponent extends Component {
 		if($countspecialchar == 2){ $userType = 'ch'; $logTable = 'DmiChemistLogs'; $conditions = array('customer_id IS' => $username);}
 		if($countspecialchar == 3){ $userType = 'df'; $logTable = 'DmiCustomerLogs'; $conditions = array('customer_id IS' => $username);}
 		if($countspecialchar == 0){ $userType = 'du'; $logTable = 'DmiUserLogs'; $conditions = array('email_id IS' => $username);}
-		
+
 		$logTable = TableRegistry::getTableLocator()->get($logTable);
 
 		$Dmi_login_status = TableRegistry::getTableLocator()->get('DmiLoginStatuses'); //initialize model in component
-		
+
 		$currLoggedin = $Dmi_login_status->find('all',array('conditions'=>array('user_id IS'=>$username,'user_type'=>$userType),'order'=>'id'))->first();
 
 		$dateMod = date('H:i:s');
-		
+
 		if(!empty($currLoggedin)){
 			$browser_session_d = $currLoggedin['sessionid'];
 			if($this->Controller->Session->read('browser_session_d') !=''){
 				if($browser_session_d != $this->Controller->Session->read('browser_session_d')){
-					
+
 					//get last id to update //added to logout on session expires
 					//on 29-03-2022 by Amol
 					$getId = $logTable->find('all',array('fields'=>'id','conditions'=>$conditions,'order'=>'id desc'))->first();
 					$logTable->updateAll(array('time_out' => "$dateMod"),array('id' => $getId['id']));
-					
+
 					$this->Authentication->browserLoginStatus($username,null);
-					$this->Controller->Session->destroy();	
+					$this->Controller->Session->destroy();
 				}
 			}
 		}
@@ -260,13 +260,13 @@ class BeforepageloadComponent extends Component {
 			if (time() - $login_time > 1200) {
 
 				//$this->Controller->Authentication->browserLoginStatus($username,null);
-				
+
 				//get last id to update //added to logout on session expires
 				//on 29-03-2022 by Amol
 				$getId = $logTable->find('all',array('fields'=>'id','conditions'=>$conditions,'order'=>'id desc'))->first();
 				$logTable->updateAll(array('time_out' => "$dateMod"),array('id' => $getId['id']));
 				$this->Authentication->browserLoginStatus($username,null);
-					
+
 				$this->Controller->customAlertPage("Your session has timed out due to inactivity");
 				exit;
 
@@ -281,7 +281,7 @@ class BeforepageloadComponent extends Component {
 	}
 
 
-	
+
 	// Function for "Total visitor" and "Today visitor" count// Done By Pravin 26/04/2018
 	public function fetch_visitor_count() {
 
@@ -291,14 +291,14 @@ class BeforepageloadComponent extends Component {
 		$current_date = date('d-m-Y');
 
 		//$fetch_count_ids = $Dmi_visitors->find('list',array('fields'=>'id'))->toArray();
-		$fetch_count = $Dmi_visitors->find('all',array('order'=>'id desc'))->first();	
-		
+		$fetch_count = $Dmi_visitors->find('all',array('order'=>'id desc'))->first();
+
 		if (!empty($fetch_count)) {
-			
+
 			$convert_current_date = strtotime($current_date);
 			$convert_table_date  = explode(' ',(string) $fetch_count['created']); #For Deprecations
 			$explode_table_date = strtotime(str_replace('/','-',$convert_table_date[0]));
-		
+
 		} else {
 
 			$fetch_count = null;
@@ -307,10 +307,10 @@ class BeforepageloadComponent extends Component {
 		$this->Controller->set('fetch_count',$fetch_count);
 
 		if (!empty($fetch_count)) {
-			
+
 			if (!isset($_SESSION['views'])) {
 
-				// Compare current date with result date of getQuery, 
+				// Compare current date with result date of getQuery,
 				//If result date is less than current date then insert new entry into table
 				// Otherwise update entery into table
 				if ($convert_current_date == $explode_table_date) {
@@ -343,7 +343,7 @@ class BeforepageloadComponent extends Component {
 			$Dmi_visitors->save($Dmi_visitor);
 
 		}
-	
+
 	}
 
 
@@ -368,14 +368,14 @@ class BeforepageloadComponent extends Component {
 		$aadhar_auth_msg =null;
 
 		foreach ($get_concent_msg as $each_msg) {
-			
+
 			if ($each_msg['concent_for']=='esign') {
-				
+
 				$esign_msg = $each_msg['message'];
 			}
-			
+
 			if ($each_msg['concent_for']=='aadhar') {
-				
+
 				$aadhar_auth_msg = $each_msg['message'];
 			}
 
@@ -463,43 +463,43 @@ class BeforepageloadComponent extends Component {
 		$customer_id = $this->Session->read('username');
 		$final_submit_id = $DmiFinalSubmits->find('all', array('conditions' => array('customer_id IS' => $customer_id),'order'=>'id desc'))->first();
 		$IsApproved='';
-        
+
 		//below code is added on 14-10-2022 by Amol, to hide options if 15 digit and Ecode certificate is approved once.
 		//no renewal so only can apply once till grant.
 		$Is15DigitApproved='';
 		$IsECodeApproved='';
 		$Dmi15DigitFinalSubmits = TableRegistry::getTableLocator()->get('Dmi15DigitFinalSubmits');
 		$final_submit_FDC_id = $Dmi15DigitFinalSubmits->find('all', array('conditions' => array('customer_id IS' => $customer_id),'order'=>'id desc'))->first();
-		
+
 		$DmiECodeFinalSubmits = TableRegistry::getTableLocator()->get('DmiECodeFinalSubmits');
 		$final_submit_Ecode_id = $DmiECodeFinalSubmits->find('all', array('conditions' => array('customer_id IS' => $customer_id),'order'=>'id desc'))->first();
-   
+
 		if (!empty($final_submit_FDC_id)) {
-			//get grant status		
+			//get grant status
 			if ($final_submit_FDC_id['status']=='approved' && $final_submit_FDC_id['current_level']=='level_3') {
 				$Is15DigitApproved='yes';
 			}
 		}
 		if (!empty($final_submit_Ecode_id)) {
-			//get grant status		
+			//get grant status
 			if ($final_submit_Ecode_id['status']=='approved' && $final_submit_Ecode_id['current_level']=='level_3') {
 				$IsECodeApproved='yes';
 			}
 		}
-		
+
 		if (!empty($final_submit_id)) {
-            
+
 			$show_button = 'Application Status';
-			//get grant status		
+			//get grant status
 			if ($final_submit_id['status']=='approved' && $final_submit_id['current_level']=='level_3') {
 				$IsApproved='yes';
 			}
-		
+
         } else {
             $show_button = 'New Certification';
-        }	
-		
-		//created and called function to check applicant is valid for renewal or not 
+        }
+
+		//created and called function to check applicant is valid for renewal or not
 		$show_renewal_btn = $this->Controller->Customfunctions->checkApplicantValidForRenewal($customer_id);
 		$show_renewal_button = '';
 		if($show_renewal_btn=='yes'){
@@ -513,7 +513,7 @@ class BeforepageloadComponent extends Component {
 				$show_renewal_button = 'Renewal';
 			}
 		}
-		
+
 		#For Surrender
 		$DmiSurrenderGrantCertificatePdfs = TableRegistry::getTableLocator()->get('DmiSurrenderGrantCertificatePdfs');
 		$checkApplication = $DmiSurrenderGrantCertificatePdfs->find('all')->where(['customer_id IS ' => $customer_id])->first();
@@ -524,7 +524,7 @@ class BeforepageloadComponent extends Component {
 		}
 
 		#For Suspension
-		$currentDate = date('Y-m-d H:i:s'); 
+		$currentDate = date('Y-m-d H:i:s');
 		$DmiMmrSuspensions = TableRegistry::getTableLocator()->get('DmiMmrSuspensions');
 		$suspension_record = $DmiMmrSuspensions->find('all')->where(['customer_id IS' => $customer_id,'to_date >=' => $currentDate])->order('id DESC')->first();
 		if (!empty($suspension_record )) {
@@ -533,7 +533,7 @@ class BeforepageloadComponent extends Component {
 			$isSuspended = 'no';
 		}
 
-		#For Cancellation	
+		#For Cancellation
 		$DmiMmrCancelledFirms = TableRegistry::getTableLocator()->get('DmiMmrCancelledFirms');
 		$cancellation_record = $DmiMmrCancelledFirms->find('all')->where(['customer_id IS' => $customer_id])->order('id DESC')->first();
 		if (!empty($cancellation_record )) {
@@ -541,8 +541,8 @@ class BeforepageloadComponent extends Component {
 		}else{
 			$isCancelled = 'no';
 		}
-		
-		
+
+
 		//to check if any application is in process for this application
 		//to restrict applicant to apply any another appication, first need to grant or reject the in process one
 		//on 28-04-2023 by Amol
@@ -551,7 +551,7 @@ class BeforepageloadComponent extends Component {
 		$InprocessMsg = null;
 		$InprocessApplId = null;
 		foreach($flow_wise_tables as $eachflow){
-			
+
 			$checkFlag='';
 			//specific for advanced payment flow
 			if ($eachflow['application_type']==7) {
@@ -564,7 +564,7 @@ class BeforepageloadComponent extends Component {
 				if (!empty($paymentStatus) && ($paymentStatus['payment_confirmation']=='confirmed' && empty($IsRejected))) {
 					$checkFlag = 'yes';
 				}
-				
+
 			}else{
 				$finalSubmitModel = $eachflow['application_form'];
 				$finalSubmitModel = TableRegistry::getTableLocator()->get($finalSubmitModel);
@@ -572,22 +572,22 @@ class BeforepageloadComponent extends Component {
 				$finalSubmitStatus = $finalSubmitModel->find('all', array('conditions' => array('customer_id IS' => $customer_id),'order'=>'id desc'))->first();
 				//get rejected status
 				$IsRejected = $this->Controller->Customfunctions->isApplicationRejected($customer_id,$eachflow['application_type']);
-				
-				if (!empty($finalSubmitStatus) && (!($finalSubmitStatus['status']=='approved' && $finalSubmitStatus['current_level']=='level_3') && empty($IsRejected))) {
+
+ 				if (!empty($finalSubmitStatus) && (!($finalSubmitStatus['status']=='approved' && $finalSubmitStatus['current_level']=='level_3') && empty($IsRejected))) {
 					$checkFlag = 'yes';
 				}
 			}
-			
+
 			if ($checkFlag=='yes') {
 				$DmiApplicationTypes = TableRegistry::getTableLocator()->get('DmiApplicationTypes');
 				$getApplTypeName = $DmiApplicationTypes->find('all',array('conditions'=>array('id IS'=>$eachflow['application_type'])))->first();
-				
+
 				$InprocessMsg = "Your Application is In-Process for Grant/Permission/Approval of ".$getApplTypeName['application_type']." Certificate.";
 				$InprocessApplId = $eachflow['application_type'];
-				break;	
+				break;
 			}
-			
-						
+
+
 		}
 
 
@@ -604,24 +604,24 @@ class BeforepageloadComponent extends Component {
 
 
 	}
-	
-	
+
+
 	public function checkValidRequest(){
-				
+
 		//commented on 02-04-2021 as esign services was blocked on response
-		
+
 		/*	$validHostName = array('agmarkonline.dmi.gov.in','esignservice.cdac.in');
 			$hostName = $_SERVER['HTTP_HOST'];
 			if(!in_array($hostName,$validHostName)){
 				$this->Controller->customAlertPage("Something went wrong. ");
 				exit;
 			}else{
-				
+
 				//new condition added on 27-03-2021 by Amol to bypass esign on response
 				if(isset($_SERVER['HTTP_REFERER']) &&
-					($_SERVER['HTTP_REFERER'] == 'https://esignservice.cdac.in/esign2.1' || 
+					($_SERVER['HTTP_REFERER'] == 'https://esignservice.cdac.in/esign2.1' ||
 					$_SERVER['HTTP_REFERER'] == 'https://esignservice.cdac.in/esign2.1/OTP')){
-						
+
 						//do nothing
 				}else{
 					// validated referere, Done by Pravin Bhakare 10-02-2021
@@ -629,19 +629,19 @@ class BeforepageloadComponent extends Component {
 						$this->Controller->customAlertPage("Something went wrong. ");
 						exit;
 					}
-					
+
 				}
-				
+
 			}*/
-			
+
 		}
 
 
 	//To show notifications on applicant dashboard, on 02-12-2021
-	public function showNotificationToApplicant(){ 
+	public function showNotificationToApplicant(){
 		// added the (string) type-cast to fix the PHP8.1.4 Depractions - Akash [06-10-2022]
 		if(preg_match((string) "/^[0-9]+\/[0-9]+\/[A-Z]+\/[0-9]+$/",(string) $this->Session->read('username'), $matches) == 1){
-			
+
 			$customer_id = $this->Session->read('username');
 			//for notificaion module on applicant dashboard
 			$DmiFlowWiseTablesLists = TableRegistry::getTableLocator()->get('DmiFlowWiseTablesLists');
@@ -650,35 +650,35 @@ class BeforepageloadComponent extends Component {
 			$appl_notifications = array();
 			$i = 0;
 			foreach($flow_wise_tables as $eachflow){
-				
+
 				//get final status of each type of flow as per applicant
 				$finalSubmitTable = TableRegistry::getTableLocator()->get($eachflow['application_form']);
-				
+
 				$lastStatus = $finalSubmitTable->find('all',array('fields'=>array('status','current_level','modified'),'conditions'=>array('customer_id'=>$customer_id),'order'=>'id desc'))->first();
-				
+
 				if(!empty($lastStatus)){
 					$forStatus =null;
-					if($lastStatus['status']=='approved' && $lastStatus['current_level']=='level_3'){					
+					if($lastStatus['status']=='approved' && $lastStatus['current_level']=='level_3'){
 						$forStatus = 'Granted';
 					}elseif($lastStatus['status']=='referred_back' && $lastStatus['current_level']=='level_3'){
-						$forStatus = 'Referred Back';							
+						$forStatus = 'Referred Back';
 					}
-					
+
 					if(!empty($forStatus)){
-						
+
 						$appl_notifications[$i]['on_date']=$lastStatus['modified'];
 						$appl_notifications[$i]['link']='../application/applicationType/'.$eachflow['application_type'];
-						
+
 						$DmiApplicationTypes = TableRegistry::getTableLocator()->get('DmiApplicationTypes');
 						$getApplTypeLabel = $DmiApplicationTypes->find('all',array('fields'=>'application_type','conditions'=>array('id'=>$eachflow['application_type'],'delete_status IS NULL')))->first();
 						$applTypeLabel = $getApplTypeLabel['application_type'];
 						$appl_notifications[$i]['message']=$applTypeLabel.' Certificate is '.$forStatus;
-						
+
 						$i = $i+1;
 					}
 				}
 			}
-			
+
 			//get alloted replica/15 digit/e-code status for notifications
 			//check allotment pdf table for each
 			$DmiECodeAllotmentPdfs = TableRegistry::getTableLocator()->get('DmiECodeAllotmentPdfs');
@@ -706,11 +706,11 @@ class BeforepageloadComponent extends Component {
 				$appl_notifications[$i]['link']='../customers/'.$methodLink;
 				$appl_notifications[$i]['message'] = $message;
 			}
-			
+
 			$this->Controller->set('appl_notifications',$appl_notifications);
-			
+
 		}
-	
+
 	}
 
 
