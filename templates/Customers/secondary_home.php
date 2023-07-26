@@ -89,7 +89,8 @@
 													if($is_appl_rejected != NULL){
 														echo $this->element('customer_elements/dash_messages/for_rejected');
 														// For Displaying Rejected Application
-														echo $this->element('customer_elements/pdf_table_view/application/apl_application');
+														echo $this->element('customer_elements/pdf_table_view/application/reject_application');
+                                                        //D:\xampp\htdocs\DMI\templates\element\customer_elements\pdf_table_view\application\reject_application.php
 													}
 
 													#For Displaying the Application PDF Table#
