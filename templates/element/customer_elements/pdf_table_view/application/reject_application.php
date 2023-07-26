@@ -28,9 +28,7 @@
                     <td>
                     <?php
                       if(empty($is_appl_rejected['appeal_id']) && date("d-m-Y")>$DeadlineDate)  { ?>
-                      <!-- <a target="blank" href="blank" data-toggle="modal" data-target="#confirm_action">Click here for Apply</a> -->
-                      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#confirm_action" data-whatever="@getbootstrap">Click here for Appeal</button>
-
+                       <a target="blank" href="<?php echo $this->request->getAttribute("webroot");?>application/application-type/12" class="nav-link">Click here for Appeal</a>
 
                       <?php }
                       elseif (!empty($is_appl_rejected['appeal_id'])){?>
@@ -48,7 +46,7 @@
         </div>
     </div>
 </section>
-<div class="modal fade" id="confirm_action" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+<div class="modal fade" id="confirm_action"  data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
 	<div class="modal-dialog modal-lg">
 		<div class="modal-content">
 			<div class="modal-header">
@@ -77,4 +75,3 @@
 		</div>
 	</div>
 </div>
-
