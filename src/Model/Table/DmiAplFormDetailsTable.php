@@ -3,6 +3,8 @@
 	use Cake\ORM\Table;
 	use App\Model\Model;
 	use Cake\ORM\TableRegistry;
+    use App\Controller\CustomersController;
+
 
 	class DmiAplFormDetailsTable extends Table{
 
@@ -61,53 +63,103 @@
 		$latest_id = $this->find('list', array('valueField'=>'id', 'conditions'=>array('customer_id IS'=>$customer_id)))->toArray();
 
 		if($latest_id != null){
-			$form_fields = $this->find('all', array('conditions'=>array('id'=>MAX($latest_id))))->first();
-
-			$form_fields_details = $form_fields;
+			$form_fields_details = $this->find('all', array('conditions'=>array('id'=>MAX($latest_id))))->first();
 
 		}else{
-
 			$form_fields_details = Array ( 'id'=>"",'created' => "", 'modified' =>"", 'customer_id' => "", 'reffered_back_comment' => "",
 											'reffered_back_date' => "", 'form_status' =>"", 'customer_reply' =>"", 'customer_reply_date' =>"",
 											'approved_date' => "",'current_level' => "",'mo_comment' =>"", 'mo_comment_date' => "",
 											'ro_reply_comment' =>"", 'ro_reply_comment_date' =>"", 'delete_mo_comment' =>"", 'delete_ro_reply' => "",
 											'delete_ro_referred_back' => "", 'delete_customer_reply' => "", 'ro_current_comment_to' => "",
 											'rb_comment_ul'=>"",'mo_comment_ul'=>"",'rr_comment_ul'=>"",'cr_comment_ul'=>"",
-											'reason' =>"",
-											'required_document' => "",
-											'is_surrender_published'=>"",
-											'is_surrender_published_docs'=>"",
-											//'is_cabook_submitted'=>"", -> This field is not required as UAT Suggestion by DMI - Akash [12-05-2023]
-											//'is_cabook_submitted_docs'=>"" ,-> This field is not required as UAT Suggestion by DMI - Akash [12-05-2023]
-											'is_ca_have_replica'=>"",
-											'is_replica_submitted'=>"",
-											'is_replica_submitted_docs'=>"",
-											'is_balance_printing_submitted'=>"",
-											'is_balance_printing_submitted_docs'=>"",
-											'printing_declaration'=>"",
-											'printing_declaration_docs'=>"",
-											'is_packers_conveyed'=>"",
-											'is_packers_conveyed_docs'=>"",
-											'noc_for_lab'=>"",
-											'noc_for_lab_docs'=>"",
-											'is_lab_packers_conveyed'=>"",
-											'is_lab_packers_conveyed_docs'=>""
+											'reason' =>"",'appeal_id'=>"",'supported_document'=>"",'status'=>""
 
 										);
 
 		}
-
-		$DmiFirms = TableRegistry::getTableLocator()->get('DmiFirms');
-		$MCommodity = TableRegistry::getTableLocator()->get('MCommodity');
-
-		$firmDetails = $DmiFirms->firmDetails($customer_id);
-		$sub_comm_id = explode(',',(string) $firmDetails['sub_commodity']); #For Deprecations
-		$sub_commodity_value = $MCommodity->find('list',array('valueField'=>'commodity_name', 'conditions'=>array('commodity_code IN'=>$sub_comm_id)))->toList();
-
-		return array($form_fields_details,$sub_commodity_value);
+		return array($form_fields_details);
 
 	}
 
+    // save or update form data and comment reply by applicant
+	public function saveFormDetails($customer_id,$forms_data){
+
+		if ($this->postDataValidation($customer_id,$forms_data)) {
+
+			$CustomersController = new CustomersController;
+			$firmType = $CustomersController->Customfunctions->firmType($customer_id);
+			$section_form_details = $this->sectionFormDetails($customer_id);
+			//Fields details to save
+			$reason = htmlentities($forms_data['reason'], ENT_QUOTES);
+
+			if(!empty($forms_data['supported_document']->getClientFilename())){
+
+				$file_name = $forms_data['supported_document']->getClientFilename();
+				$file_size = $forms_data['supported_document']->getSize();
+				$file_type = $forms_data['supported_document']->getClientMediaType();
+				$file_local_path = $forms_data['supported_document']->getStream()->getMetadata('uri');
+				$required_document = $CustomersController->Customfunctions->fileUploadLib($file_name,$file_size,$file_type,$file_local_path); // calling file uploading function
+
+			} else { $required_document = $section_form_details[0]['supported_document'];}
+
+
+			// If applicant have referred back on give section
+			if ($section_form_details[0]['form_status'] == 'referred_back') {
+
+				$max_id = $section_form_details[0]['id'];
+				$htmlencoded_reply = htmlentities($forms_data['customer_reply'], ENT_QUOTES);
+				$customer_reply_date = date('Y-m-d H:i:s');
+
+				if (!empty($forms_data['cr_comment_ul']->getClientFilename())) {
+
+					$file_name = $forms_data['cr_comment_ul']->getClientFilename();
+					$file_size = $forms_data['cr_comment_ul']->getSize();
+					$file_type = $forms_data['cr_comment_ul']->getClientMediaType();
+					$file_local_path = $forms_data['cr_comment_ul']->getStream()->getMetadata('uri');
+
+					$cr_comment_ul = $CustomersController->Customfunctions->fileUploadLib($file_name,$file_size,$file_type,$file_local_path); // calling file uploading function
+
+				} else { $cr_comment_ul = null; }
+
+			} else {
+
+				$htmlencoded_reply = '';
+				$max_id = '';
+				$customer_reply_date = '';
+				$cr_comment_ul = null;
+			}
+
+			if (empty($section_form_details[0]['created'])) {
+				$created = date('Y-m-d H:i:s');
+			} else {
+				//added date function on 31-05-2021 by Amol to convert date format, as saving null
+				$created = $CustomersController->Customfunctions->changeDateFormat($section_form_details[0]['created']);
+			}
+
+			$newEntity = $this->newEntity(array(
+
+				'id'=>$max_id,
+				'customer_id'=>$customer_id,
+				'reason'=>$reason,
+				'supported_document'=>$required_document,
+				'form_status'=>'saved',
+				'customer_reply'=>$htmlencoded_reply,
+				'customer_reply_date'=>$customer_reply_date,
+				'cr_comment_ul'=>$cr_comment_ul,
+				'created'=>$created,
+				'modified'=>date('Y-m-d H:i:s')
+			));
+
+			if ($this->save($newEntity)) { return 1; }
+
+		} else { return false; }
+
+	}
+	public function postDataValidation($customer_id,$forms_data){
+		$returnValue = true;
+		return $returnValue;
+
+	}
 
 }
 
