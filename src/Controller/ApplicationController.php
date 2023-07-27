@@ -365,7 +365,9 @@ class ApplicationController extends AppController{
 
 			$form_type='SOC';
 		}
-
+		if ($application_type == 12) {
+			$form_type='APL';
+		}
 		$this->set('form_type',$form_type);
 
 		$firm_type_text = $this->Customfunctions->firmTypeText($customer_id);
