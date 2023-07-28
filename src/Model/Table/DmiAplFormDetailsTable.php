@@ -5,7 +5,6 @@
 	use Cake\ORM\TableRegistry;
     use App\Controller\CustomersController;
 
-
 	class DmiAplFormDetailsTable extends Table{
 
 	var $name = "DmiAplFormDetails";
@@ -150,9 +149,20 @@
 				'modified'=>date('Y-m-d H:i:s')
 			));
 
-			if ($this->save($newEntity)) { return 1; }
-
-		} else { return false; }
+			if ($this->save($newEntity)) {
+                $rejectApplicationDetails = $CustomersController->Customfunctions->isApplicationRejected($customer_id);
+                if(empty($rejectApplicationDetails['appeal_id']))
+                {
+                $appeal_id=$this->generateAppealID($customer_id);
+                return $this->addAppealInfoInRejectLogTable($customer_id,$appeal_id)?1:0;
+                }
+                else{
+                    return 1;
+                }
+            }
+		} else {
+         return false;
+        }
 
 	}
 	public function postDataValidation($customer_id,$forms_data){
@@ -161,6 +171,15 @@
 
 	}
 
-}
+    private function addAppealInfoInRejectLogTable($rejection_id,$appeal_id){
+        $newEntity = $this->newEntity(array(
+            'id'=>$rejection_id,
+            'appeal_id'=>$appeal_id
+        ));
+        return $this->save($newEntity);
+    }
+    public function generateAppealID($customer_id){
+        return 'APL-'.$customer_id;
+    }
 
-?>
+}
