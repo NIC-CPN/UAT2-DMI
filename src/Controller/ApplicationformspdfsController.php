@@ -4670,10 +4670,6 @@ class ApplicationformspdfsController extends AppController{
                 $this->loadModel('DmiCustomers');
                 $this->loadModel('DmiDistricts');
                 $this->loadModel('DmiStates');
-                $this->loadModel('MCommodity');
-                $this->loadModel('MCommodityCategory');
-                $this->loadModel('DmiSurrenderFormsDetails');
-
                 $customer_id = $this->Session->read('username');
                 $this->set('customer_id',$customer_id);
 
@@ -4700,7 +4696,10 @@ class ApplicationformspdfsController extends AppController{
                 // to show firm state name form id
                 $firm_state_name = $this->DmiStates->getStateNameById($firmData['state']);
                 $this->set('firm_state_name',$firm_state_name);
-
+                //
+                $rejectApplicationDetails = $this->Customfunctions->isApplicationRejected($customer_id);
+                $this->set('rejection_date',$rejectApplicationDetails['created']);
+                //
                 $this->generateApplicationPdf('/Applicationformspdfs/appealFormPdf');
             }
 }
