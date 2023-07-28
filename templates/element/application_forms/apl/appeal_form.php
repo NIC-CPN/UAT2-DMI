@@ -88,6 +88,7 @@
 												<span id="error_required_document" class="error invalid-feedback"></span>
 												<span id="error_size_required_document" class="error invalid-feedback"></span>
 												<span id="error_type_required_document" class="error invalid-feedback"></span>
+
 											</div>
 										</div>
 										<p class="lab_form_note mt-3 lab_form_note float-right"><i class="fa fa-info-circle"></i> File type: PDF, jpg &amp; max size upto 2 MB</p>
