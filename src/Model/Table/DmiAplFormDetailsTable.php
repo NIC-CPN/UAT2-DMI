@@ -134,8 +134,9 @@
 				//added date function on 31-05-2021 by Amol to convert date format, as saving null
 				$created = $CustomersController->Customfunctions->changeDateFormat($section_form_details[0]['created']);
 			}
-
-			$newEntity = $this->newEntity(array(
+            $appealId=$section_form_details['appeal_id'];
+            $appealId=empty($appealId)?$this->generateAppealID($customer_id):$appealId;
+            $newEntity = $this->newEntity(array(
 
 				'id'=>$max_id,
 				'customer_id'=>$customer_id,
@@ -146,15 +147,15 @@
 				'customer_reply_date'=>$customer_reply_date,
 				'cr_comment_ul'=>$cr_comment_ul,
 				'created'=>$created,
-				'modified'=>date('Y-m-d H:i:s')
+				'modified'=>date('Y-m-d H:i:s'),
+                'appeal_id'=>$appealId
 			));
 
 			if ($this->save($newEntity)) {
                 $rejectApplicationDetails = $CustomersController->Customfunctions->isApplicationRejected($customer_id);
                 if(empty($rejectApplicationDetails['appeal_id']))
                 {
-                $appeal_id=$this->generateAppealID($customer_id);
-                return $this->addAppealInfoInRejectLogTable($customer_id,$appeal_id)?1:0;
+                return $this->addAppealInfoInRejectLogTable($rejectApplicationDetails['id'],$appealId)?1:0;
                 }
                 else{
                     return 1;
@@ -172,11 +173,12 @@
 	}
 
     private function addAppealInfoInRejectLogTable($rejection_id,$appeal_id){
-        $newEntity = $this->newEntity(array(
+        $dmiRejectedApplLogs = TableRegistry::getTableLocator()->get('DmiRejectedApplLogs');
+        $newEntity = $dmiRejectedApplLogs->newEntity(array(
             'id'=>$rejection_id,
             'appeal_id'=>$appeal_id
         ));
-        return $this->save($newEntity);
+        return $dmiRejectedApplLogs->save($newEntity);
     }
     public function generateAppealID($customer_id){
         return 'APL-'.$customer_id;

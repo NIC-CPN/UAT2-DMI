@@ -90,8 +90,7 @@
 														echo $this->element('customer_elements/dash_messages/for_rejected');
 														// For Displaying Rejected Application
 														echo $this->element('customer_elements/pdf_table_view/application/reject_application');
-                                                        //D:\xampp\htdocs\DMI\templates\element\customer_elements\pdf_table_view\application\reject_application.php
-													}
+                                       			}
 
 													#For Displaying the Application PDF Table#
 													echo $this->element('customer_elements/pdf_table_view/application/general_application');
