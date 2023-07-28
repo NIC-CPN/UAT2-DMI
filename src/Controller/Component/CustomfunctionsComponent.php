@@ -4237,4 +4237,27 @@ class CustomfunctionsComponent extends Component {
 			}
 		}
 	}
+
+
+	//Description: Returns Appeal Details.
+	//@Author : Akash Joshi
+	//Date : 28 July 2023
+	public function getAppealDetails($username,$appeal_id=null){
+        $appealApplication=null;
+        $condition_arr=null;
+
+        if($appeal_id =! null){
+        $condition_arr= array('appeal_id IS'=>$appeal_id);
+        }
+        elseif($username !=null ){
+        $DmiRejectedApplLogs = TableRegistry::getTableLocator()->get('DmiRejectedApplLogs');
+        $condition_arr= array('customer_id IS'=>$username);
+        $checkApplication = $DmiRejectedApplLogs->find('all', array('conditions'=>$condition_arr,'order'=>'id desc'))->first();
+		$condition_arr= array('appeal_id IS'=>$checkApplication['appeal_id']);
+        }
+        $DmiAplFormDetails = TableRegistry::getTableLocator()->get('DmiAplFormDetails');
+        $appealApplication = $DmiAplFormDetails->find('all', array('conditions'=>$condition_arr,'order'=>'id desc'))->first();
+        return $appealApplication;
+	}
+
 }
