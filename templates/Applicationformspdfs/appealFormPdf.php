@@ -40,7 +40,7 @@
 		</tr>
 
 		<tr>
-			<td><br>Subject: Appeal against rejection order of application of M.s XYZ having AQCMS ID <?php echo $customer_id; ?> -Reg.</td><br>
+			<td><br>Subject: Appeal against rejection order of application of <b> M/s <?php echo $firmData['firm_name']; ?> </b> having AQCMS ID <?php echo $customer_id; ?> -Reg.</td><br>
 		</tr>
 
 		<tr>
@@ -49,10 +49,10 @@
 
 		<tr>
 			<td>
-				<br>With reference to the DMI RO/SO ..... letter dated ..... for conveying the
-                    rejection of my application of ..... having AQCMS id <?php echo $customer_id; ?><br>
+				<br>With reference to the DMI RO/SO Intimation of rejection letter dated <?php echo $rejection_date; ?> for conveying the
+                    rejection of my application of <?php echo $firmData['firm_name'].' , '.$firmData['street_address'].' , '.$firm_district_name.' , '.$firm_state_name; ?> having AQCMS id <?php echo $customer_id; ?><br>
                     In this connection, I wish to appeal against the decision of rejection of above application and hereby
-                    appeal and submit the ........ additional documents (if any) for reconsideration of above application.
+                    appeal and submit the required additional documents (if any) for reconsideration of above application.
 			</td>
 		</tr>
 	</table>
