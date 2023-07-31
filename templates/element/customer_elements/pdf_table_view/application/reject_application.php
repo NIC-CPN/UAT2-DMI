@@ -1,6 +1,6 @@
 <section class="col-lg-12 connectedSortable">
     <div class="card card-info">
-        <div class="card-header"><h3 class="card-title-new">Rejected Application</h3></div>
+        <div class="card-header"><h3 class="card-title"> Rejected Application </h3></div>
             <div class="card-body">
             <table id="example2" class="table m-0 table-bordered">
                 <thead class="tablehead">

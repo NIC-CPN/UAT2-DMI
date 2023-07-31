@@ -4246,7 +4246,7 @@ class CustomfunctionsComponent extends Component {
         $appealApplication=null;
         $condition_arr=null;
 
-        if($appeal_id =! null){
+        if($appeal_id != null){
         $condition_arr= array('appeal_id IS'=>$appeal_id);
         }
         elseif($username !=null ){
