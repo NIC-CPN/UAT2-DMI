@@ -28,6 +28,7 @@
 		echo $this->Html->css('custom-style');
 		echo $this->Html->css('../select2/css/select2.min');
 		echo $this->Html->css('jquery-confirm.min');
+        echo $this->Html->css('../dashboard/css/bootstrap-glyphicons.min');
 
 		// new template css end
 
@@ -36,7 +37,7 @@
 		echo $this->Html->script('sha512.min');
 		echo $this->Html->script('bootstrap.min');
 		echo $this->Html->script('md5');
-		
+
 		// echo $this->Html->script('validation');
 		echo $this->Html->script('primary_forms_validations');
 		// echo $this->Html->script('jssor.slider-21.1.6.min');

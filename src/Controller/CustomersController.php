@@ -1490,6 +1490,14 @@ class CustomersController extends AppController {
 			$is_appl_rejected =  $this->Customfunctions->isApplicationRejected($customer_id);
 			$this->set('is_appl_rejected',$is_appl_rejected);
 
+            // Adding check to eliminate unnecessary DB call to fetch PDF for non existing entries. - Akash Joshi
+            if(!empty($is_appl_rejected)){
+                $this->loadModel('DmiAplPdfRecords');
+			    $apl_pdfs_records = $this->DmiAplPdfRecords->find('all', array('conditions' => array('customer_id IS' => $customer_id)))->first();
+			    $this->set('apl_pdfs_records', $apl_pdfs_records);
+                $appeal_details =  $this->Customfunctions->getAppealDetails($customer_id,$is_appl_rejected['appeal_id']);
+                $this->set('appeal_details',$appeal_details);
+            }
 			//To check0 if the application is surrendered  and set the custom message - Akash[06-12-2022]
 			$isSurrender =  $this->Customfunctions->isApplicationSurrendered($customer_id);
 			$this->set('isSurrender',$isSurrender);
