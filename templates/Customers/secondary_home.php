@@ -85,12 +85,18 @@
 
 												if ($is_already_granted == 'no') {
 
-													#This Below Block is added to Show the Message when the application is rejected -= Akash [25-11-2022]
-													if($is_appl_rejected != NULL){
+
+
+                                                    if($appeal_details != null)
+                                                    {
+                                                        echo $this->element('customer_elements/pdf_table_view/application/appeal_application');
+                                                    }
+                                                    #This Below Block is added to Show the Message when the application is rejected -= Akash [25-11-2022]
+                                                    elseif($is_appl_rejected != NULL){
 														echo $this->element('customer_elements/dash_messages/for_rejected');
 														// For Displaying Rejected Application
 														echo $this->element('customer_elements/pdf_table_view/application/reject_application');
-                                       			}
+                                       			    }
 
 													#For Displaying the Application PDF Table#
 													echo $this->element('customer_elements/pdf_table_view/application/general_application');
