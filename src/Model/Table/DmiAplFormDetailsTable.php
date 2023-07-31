@@ -5,6 +5,13 @@
 	use Cake\ORM\TableRegistry;
     use App\Controller\CustomersController;
 
+    enum AppealStatus: string
+    {
+        case InProcess = 'In Process';
+        case Granted  ='granted';
+        case Rejected = 'rejected';
+    }
+
 	class DmiAplFormDetailsTable extends Table{
 
 	var $name = "DmiAplFormDetails";
@@ -127,13 +134,15 @@
 				$customer_reply_date = '';
 				$cr_comment_ul = null;
 			}
-
+            $appealStatus='';
 			if (empty($section_form_details[0]['created'])) {
 				$created = date('Y-m-d H:i:s');
-			} else {
+                $appealStatus = AppealStatus::InProcess;
+            } else {
 				//added date function on 31-05-2021 by Amol to convert date format, as saving null
 				$created = $CustomersController->Customfunctions->changeDateFormat($section_form_details[0]['created']);
 			}
+
             $appealId=$section_form_details['appeal_id'];
             $appealId=empty($appealId)?$this->generateAppealID($customer_id):$appealId;
             $newEntity = $this->newEntity(array(
@@ -148,7 +157,8 @@
 				'cr_comment_ul'=>$cr_comment_ul,
 				'created'=>$created,
 				'modified'=>date('Y-m-d H:i:s'),
-                'appeal_id'=>$appealId
+                'appeal_id'=>$appealId,
+                'status'=>$appealStatus->value
 			));
 
 			if ($this->save($newEntity)) {
@@ -182,6 +192,17 @@
     }
     public function generateAppealID($customer_id){
         return 'APL-'.$customer_id;
+    }
+
+
+    public function updateAppealStatus($appealID, AppealStatus $status)
+    {
+        $newEntity = $this->newEntity(array(
+            'id'=>$appealID,
+            'status'=>$status->value,
+            'modified'=>date('Y-m-d H:i:s')
+        ));
+        return $this->save($newEntity);
     }
 
 }

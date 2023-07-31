@@ -1,5 +1,3 @@
-<?php ?>
-<?php echo $this->Html->css('elements/all_app_list_element'); ?>
 <section class="col-lg-12 connectedSortable">
     <div class="card card-info">
         <div class="card-header"><h3 class="card-title"> Appeal Application </h3></div>
@@ -12,7 +10,7 @@
                     <th>Appeal Submission Date</th>
                     <th>Status</th>
                     <th>Appeal Application</th>
-                    <th>Reference Application</th>
+                    <th>Rejected Application</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -30,10 +28,10 @@
                      $status = $appeal_details['status'];
                     echo $status; ?></td>
                     <td>
-                       <a title="View" target="blank" href="<?php echo $this->request->getAttribute("webroot");?>application/application-type/12" ><span class="glyphicon glyphicon-eye-open"></span></a>
+                       <a title="Open" target="blank" href="<?php echo $this->request->getAttribute("webroot");?>application/application-type/12" ><span class="glyphicon glyphicon-new-window"></span></a>
                     </td>
                     <td>
-                       <a title="View" target="blank" href="<?php echo $this->request->getAttribute("webroot");?>application/application-type/<?php echo $is_appl_rejected['appl_type']?>"><span class="glyphicon glyphicon-eye-open"></span></a>
+                       <a title="Open" target="blank" href="<?php echo $this->request->getAttribute("webroot");?>application/application-type/<?php echo $is_appl_rejected['appl_type']?>"><span class="glyphicon glyphicon-new-window"></span></a>
                     </td>
                 </tr>
                 </tbody>
