@@ -36,17 +36,21 @@
                     {
                       return strtotime(date("Y-m-d"))> strtotime($cutoffDate);
                     }
-                      if(empty($is_appl_rejected['appeal_id']) && hasCutoffDatePassed($cutoffDate))  { ?>
-                       <a target="blank" href="<?php echo $this->request->getAttribute("webroot");?>application/application-type/12" class="nav-link">Initiate Appeal</a>
+                      if(hasCutoffDatePassed($cutoffDate))  { ?>
+                        Appeal deadline has passed.
+                      <?php }
+                      elseif ($final_apl_submit_status =='no_final_submit' && !empty($is_appl_rejected['appeal_id']))
+                      {
+                        ?>
+                        <a target="blank" href="<?php echo $this->request->getAttribute("webroot");?>application/application-type/12" class="nav-link">Complete Appeal Application</a>
+                      <?php
+                      }
+                      elseif (empty($is_appl_rejected['appeal_id'])){?>
+                         <a target="blank" href="<?php echo $this->request->getAttribute("webroot");?>application/application-type/12" class="nav-link">Initiate Appeal</a>
                       <?php }
                       elseif (!empty($is_appl_rejected['appeal_id'])){?>
-                        Appeal Reference: <?php echo $is_appl_rejected['appeal_id'];?>
-                      <?php }
-                      else
-                      { ?>
-                        Appeal deadline has passed.
+                      <a target="blank" href="<?php echo $this->request->getAttribute("webroot");?>application/application-type/12" class="nav-link">Appeal Reference</a>
                       <?php } ?>
-
                     </td>
                 </tr>
                 </tbody>
