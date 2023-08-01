@@ -145,9 +145,10 @@
 
             $appealId=$section_form_details[0]['appeal_id'];
             $appealId=empty($appealId)?$this->generateAppealID($customer_id):$appealId;
-            $max_id = empty($max_id)?$this->$section_form_details[0]['id']:'';
+
             //In Case of Update, Need to put ID, at above lines we are fetching Max ID in case of referred back,
             //however we have to keep track of id for update case as well.
+			$max_id = empty($max_id)?$this->$section_form_details[0]['id']:'';
             $newEntity = $this->newEntity(array(
 
 				'id'=>$max_id,

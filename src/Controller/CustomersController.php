@@ -1482,22 +1482,15 @@ class CustomersController extends AppController {
 			$this->DmiFirms->updateAll(array('applied_to' => "$applied_to"), array('customer_id' => $customer_id));
 		}
 
-
-
 		//// For Rejected / Suspension / Surrender / Showcause Notices  by Akash////
 
 			//To check if the application is rejected or junked and set the custom message - Akash[14-11-2022]
 			$is_appl_rejected =  $this->Customfunctions->isApplicationRejected($customer_id);
 			$this->set('is_appl_rejected',$is_appl_rejected);
-
-            // Adding check to eliminate unnecessary DB call to fetch PDF for non existing entries. - Akash Joshi
             if(!empty($is_appl_rejected)){
-                $this->loadModel('DmiAplPdfRecords');
-			    $apl_pdfs_records = $this->DmiAplPdfRecords->find('all', array('conditions' => array('customer_id IS' => $customer_id)))->first();
-			    $this->set('apl_pdfs_records', $apl_pdfs_records);
-                $appeal_details =  $this->Customfunctions->getAppealDetails($customer_id,$is_appl_rejected['appeal_id']);
-                $this->set('appeal_details',$appeal_details);
+            $this->_performAppealRelatedActivityInSecondaryHome($customer_id,$is_appl_rejected['appeal_id']);
             }
+
 			//To check0 if the application is surrendered  and set the custom message - Akash[06-12-2022]
 			$isSurrender =  $this->Customfunctions->isApplicationSurrendered($customer_id);
 			$this->set('isSurrender',$isSurrender);
@@ -2491,6 +2484,40 @@ class CustomersController extends AppController {
 		$this->set('selected_PP',$selected_PP);
 		$this->set('dataArray',$dataArray);
 	}
+
+
+
+    //This method will fetch data related to Appeal.
+    //Author: Akash Joshi
+    //Parameter: Customer ID - Required, Appeal ID- Optional
+    //This method is helper method for secondaryHome API.
+    private function _performAppealRelatedActivityInSecondaryHome($customer_id,$appeal_id=null){
+            $this->loadModel('DmiAplFinalSubmits');
+            $final_appeal_submit_data = $this->DmiAplFinalSubmits->find('all',
+                                                    array('conditions'=>
+                                                            array('customer_id IS' => $customer_id),
+                                                                        'order'=>'id desc'))->first();
+
+             $this->set('final_apl_submit_status','no_final_submit');
+
+            // Adding check to eliminate unnecessary DB call to fetch PDF for non existing entries. - Akash Joshi[Performance Optimal]
+			if (!empty($final_appeal_submit_data)) {
+				$final_submit_level = $final_appeal_submit_data['current_level'];
+				$this->set('final_apl_submit_status',
+                            empty($final_appeal_submit_data['status'])?
+                            'no_final_submit': $final_appeal_submit_data['status']);
+				if(!empty($final_submit_level)){
+                    $this->set('final_apl_submit_level', $final_submit_level);
+                }
+                $this->loadModel('DmiAplPdfRecords');
+			    $apl_pdfs_records = $this->DmiAplPdfRecords->find('all',
+                                                                array('conditions' =>
+                                                                array('customer_id IS' => $customer_id)))->first();
+			    $this->set('apl_pdfs_records', $apl_pdfs_records);
+                $appeal_details =  $this->Customfunctions->getAppealDetails($customer_id,$appeal_id);
+                $this->set('appeal_details',$appeal_details);
+			}
+    }
 }
 
 ?>
