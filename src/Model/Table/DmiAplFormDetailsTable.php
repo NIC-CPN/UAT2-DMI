@@ -143,8 +143,11 @@
 				$created = $CustomersController->Customfunctions->changeDateFormat($section_form_details[0]['created']);
 			}
 
-            $appealId=$section_form_details['appeal_id'];
+            $appealId=$section_form_details[0]['appeal_id'];
             $appealId=empty($appealId)?$this->generateAppealID($customer_id):$appealId;
+            $max_id = empty($max_id)?$this->$section_form_details[0]['id']:'';
+            //In Case of Update, Need to put ID, at above lines we are fetching Max ID in case of referred back,
+            //however we have to keep track of id for update case as well.
             $newEntity = $this->newEntity(array(
 
 				'id'=>$max_id,

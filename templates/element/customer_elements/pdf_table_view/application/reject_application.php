@@ -22,14 +22,22 @@
                      $dateTime = DateTime::createFromFormat('d/m/Y H:i:s', $date);
                     echo $dateTime->format('d/m/Y'); ?></td>
                     <td><?php
-                    $DeadlineDate = date ("d/m/Y", strtotime ( $dateTime->format('d-m-Y') ."+30 days"));
-                    echo $DeadlineDate; ?>
+                    $cutoffDate =  date ("Y-m-d", strtotime ( $dateTime->format('d-m-Y') ."+30 days"));
+                    $deadlineDateForDisplay = date ("d/m/Y", strtotime ( $dateTime->format('d-m-Y') ."+30 days"));
+                    echo $deadlineDateForDisplay; ?>
                     </td>
                     <td>
                     <?php
-                      if(empty($is_appl_rejected['appeal_id']) && date("d-m-Y")>$DeadlineDate)  { ?>
-                       <a target="blank" href="<?php echo $this->request->getAttribute("webroot");?>application/application-type/12" class="nav-link">Click here for Appeal</a>
-
+                    //@@Author: Joshi, Akash
+                    //Below method will compare provided time with current time
+                    //Parameter: Date in Y-m-d format
+                    //Return: Meaningfull boolean value.
+                    function hasCutoffDatePassed($cutoffDate)
+                    {
+                      return strtotime(date("Y-m-d"))> strtotime($cutoffDate);
+                    }
+                      if(empty($is_appl_rejected['appeal_id']) && hasCutoffDatePassed($cutoffDate))  { ?>
+                       <a target="blank" href="<?php echo $this->request->getAttribute("webroot");?>application/application-type/12" class="nav-link">Initiate Appeal</a>
                       <?php }
                       elseif (!empty($is_appl_rejected['appeal_id'])){?>
                         Appeal Reference: <?php echo $is_appl_rejected['appeal_id'];?>
