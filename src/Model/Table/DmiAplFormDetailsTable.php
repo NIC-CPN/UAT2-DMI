@@ -148,7 +148,10 @@
 
             //In Case of Update, Need to put ID, at above lines we are fetching Max ID in case of referred back,
             //however we have to keep track of id for update case as well.
-			$max_id = empty($max_id)?$this->$section_form_details[0]['id']:'';
+            if(empty($max_id) &&  !(empty($this->$section_form_details) || empty($this->$section_form_details[0])))
+            {
+                $max_id= $this->$section_form_details[0]['id'];
+            }
             $newEntity = $this->newEntity(array(
 
 				'id'=>$max_id,
