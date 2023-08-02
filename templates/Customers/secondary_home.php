@@ -103,7 +103,15 @@
 
 													#This Below Block is added to Show the Message when the application is rejected - Akash [25-11-2022]
 													if($is_appl_rejected != NULL){
-														echo $this->element('customer_elements/dash_messages/for_rejected');
+                                                        if($final_apl_submit_status != 'no_final_submit'){
+                                                            echo $this->element('customer_elements/pdf_table_view/application/appeal_application');
+                                                             }
+                                                            #This Below Block is added to Show the Message when the application is rejected -= Akash [25-11-2022]
+                                                            else{
+                                                            echo $this->element('customer_elements/dash_messages/for_rejected');
+                                                            // For Displaying Rejected Application
+                                                            echo $this->element('customer_elements/pdf_table_view/application/reject_application');
+                                                            }
 													}else{
 														echo $this->element('customer_elements/dash_messages/for_old_appl_saved');
 													}
