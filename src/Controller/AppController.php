@@ -77,7 +77,7 @@ class AppController extends Controller
 	public function beforeFilter(EventInterface $event){
 
 		parent::beforeFilter($event);
-		
+
 		//below headers are set for "Content-Security-Policy", to allow inline scripts from same origin and report the outer origin scripts calls.
 		//the "Content-Security-Policy" header is commmented from httpd.conf file now and set here.
 		//26-10-2021 by Amol
@@ -96,14 +96,14 @@ class AppController extends Controller
 		print_r($check);exit;*/
 
 
-		//This Below we defined the Array for the Application Types from which dashboard will count and list will recognize 
+		//This Below we defined the Array for the Application Types from which dashboard will count and list will recognize
 		//the Flow for DMI users - Amol
 		// # The Application type no. is given #//
 		// #1- New / #2- Renewal / #3- Change / #4- Approval of Chemist(CHM)
 		// #5- 15-Digit-Code (FDC) / #6- Allotment of E-Code (EC) / #7- Advance Payment (AP)
 		// #8- Approval of Designated Person (ADP) / #9- Surrender of Certificate (SOC)
 		// #10- Routine Inspection (RTI) / #11 - Bi-annually Grading Report (BGR)
-		$this->Session->write('applTypeArray',array('1','2','3','4','5','6','8','9','10'));
+		$this->Session->write('applTypeArray',array('1','2','3','4','5','6','8','9','10','12'));
 
 		//added on 01-10-2021 by Amol
 		//if not in advance payment mode
@@ -126,7 +126,7 @@ class AppController extends Controller
 		$this->Beforepageload->checkValidRequest();
 		$this->Beforepageload->current_session_status();
 		$this->Beforepageload->showNotificationToApplicant();//To show notifications on applicant dashboard, on 02-12-2021
-		
+
 
 		$this->loadModel('DmiUserRoles');
 		$this->loadModel('DmiUsers');
@@ -147,7 +147,7 @@ class AppController extends Controller
 		$IsApproved=null;
 		$final_submit_id = $this->DmiFinalSubmits->find('all', array('conditions' => array('customer_id IS' => $username),'order'=>'id desc'))->first();
 		if (!empty($final_submit_id)) {
-			//get grant status		
+			//get grant status
 			if ($final_submit_id['status']=='approved' && $final_submit_id['current_level']=='level_3') {
 				$IsApproved='yes';
 			}
@@ -163,8 +163,8 @@ class AppController extends Controller
 		$user_last_login = $this->Customfunctions->userLastLogins();
 		$this->set('user_last_login',$user_last_login);
 
-		// this condition added for sending sms and email for daily basis 
-		// the custome function call once in a day and added new entry in db 
+		// this condition added for sending sms and email for daily basis
+		// the custome function call once in a day and added new entry in db
 		// added by shankhpal shende on 04/07/2023
     //temp. commented
 		/*$DmiPendingSmsEmailSendStatus = TableRegistry::getTableLocator()->get('DmiPendingSmsEmailSendStatus');
@@ -173,7 +173,7 @@ class AppController extends Controller
 		$todayCount = $DmiPendingSmsEmailSendStatus->find()
 				->where(['DATE(created)' => $today])
 				->count();
-			
+
 		if ($todayCount == 0) {
 				$responce = $this->Customfunctions->getSingleOrAllUserAppliResult();
 				$Dmi_pending_count_Entity = $DmiPendingSmsEmailSendStatus->newEntity([
@@ -232,7 +232,7 @@ class AppController extends Controller
 			if (!empty($remark[$j])) {
 
 				if ($remark[$j] == 'Failed') {
-					
+
 					$log_date = strtotime(str_replace('/','-',$date[$j]));
 
 					//condition added on 13-02-2023
@@ -240,7 +240,7 @@ class AppController extends Controller
 
 						$failed_count = $failed_count+1;
 					}
-					
+
 				}
 			}
 
@@ -267,9 +267,9 @@ class AppController extends Controller
 
 		$username = $this->Session->read('username');
 		$countspecialchar = substr_count($username ,"/");
-									
+
 		if($countspecialchar == 0){
-			
+
 			$table = TableRegistry::getTableLocator()->get('DmiUsers');
 			$this->Authentication->userProceedLogin($username,$table);
 
@@ -277,20 +277,20 @@ class AppController extends Controller
 			$table = TableRegistry::getTableLocator()->get('DmiCustomers');
 			$this->Authentication->customerProceedLogin($username,$table);
 
-		}elseif($countspecialchar == 2){			
-			
-			$chemistController = new ChemistController();			
+		}elseif($countspecialchar == 2){
+
+			$chemistController = new ChemistController();
 			$chemistController->chemistLoginProced($username);
 			$this->redirect(array('controller'=>'chemist', 'action'=>'home'));
-		
-		}elseif($countspecialchar == 3){			
+
+		}elseif($countspecialchar == 3){
 			$table = TableRegistry::getTableLocator()->get('DmiFirms');
 			$this->Authentication->customerProceedLogin($username,$table);
 		}
 
-		
+
 	}
-	
+
 	// Custom common alert page
 	// Aniket G [14-10-2022][C]
     public function customAlertPage($msg = null) {
@@ -313,7 +313,7 @@ class AppController extends Controller
 				<meta name="msapplication-tap-highlight" content="no">
 				<link href="'.$homeUrl.'/favicon.ico" type="image/x-icon" rel="icon"><link href="'.$homeUrl.'/favicon.ico" type="image/x-icon" rel="shortcut icon"><meta charset="utf-8"><link rel="stylesheet" href="'.$homeUrl.'/css/adminlte.min.css"><link rel="stylesheet" href="'.$homeUrl.'/css/all.min.css"><style type="text/css">/* Chart.js */
 				@-webkit-keyframes chartjs-render-animation{from{opacity:0.99}to{opacity:1}}@keyframes chartjs-render-animation{from{opacity:0.99}to{opacity:1}}.chartjs-render-monitor{-webkit-animation:chartjs-render-animation 0.001s;animation:chartjs-render-animation 0.001s;}.error_div{background:#dccac8;height:100vh;display:flex;align-items:center;font-family:system-ui;}.card-header{text-transform:initial;background:#eb5d57;color:white;font-size:17px;}#error_icon{font-size:32px;color:#eb5d57;}.btn_continue{background:#eb5d57;}.font_gainsboro{color:#5c5c5c;}</style></head>
-				<body> 
+				<body>
 					<link rel="stylesheet" href="'.$homeUrl.'/css/element/session_expired.css">
 					<div class="container-fluid error_div">
 						<div class="card col-md-4 mx-auto p-0">
