@@ -504,7 +504,10 @@ class CustomfunctionsComponent extends Component {
 		} elseif ($appl_type==10) {		#For Routine Inspection (RTI) - Shankhpal [12/12/2022]
 
 			$form_type = 'RTI';
-		}
+		} elseif ($appl_type == 12) {		#For Appeal Applicayion - Joshi, Akash [03/08/2023]
+
+            $form_type = 'APL';
+        }
 
 		return $form_type;
 	}
