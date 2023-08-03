@@ -212,4 +212,105 @@
         return $this->save($newEntity);
     }
 
+
+	// To save 	RO/SO referred back  and MO reply comment
+	public function saveReferredBackComment ($customer_id,$forms_data,$comment,$comment_upload,$reffered_back_to) {
+		// Import another model in this model
+
+		$logged_in_user = $_SESSION['username'];
+		$current_level = $_SESSION['current_level'];
+
+		$DmiOldApplicationDetails = TableRegistry::getTableLocator()->get('DmiOldApplicationCertificateDetails');
+
+		$CustomersController = new CustomersController;
+		$oldapplication = $CustomersController->Customfunctions->isOldApplication($customer_id);
+
+		//added date function on 31-05-2021 by Amol to convert date format, as saving null
+		$created_date = $CustomersController->Customfunctions->changeDateFormat($forms_data['created']);
+
+		if ($reffered_back_to == 'Level3ToApplicant') {
+
+			$form_status = 'referred_back';
+			$reffered_back_comment = $comment;
+			$reffered_back_date = date('Y-m-d H:i:s');
+			$rb_comment_ul = $comment_upload;
+			$ro_current_comment_to = 'applicant';
+			$mo_comment = null;
+			$mo_comment_date = null;
+			$mo_comment_ul = null;
+			$ro_reply_comment = null;
+			$ro_reply_comment_date = null;
+			$rr_comment_ul = null;
+
+		} elseif ($reffered_back_to == 'Level1ToLevel3') {
+
+			$form_status = $forms_data['form_status'];
+			$reffered_back_comment = null;
+			$reffered_back_date = null;
+			$rb_comment_ul = null;
+			$ro_current_comment_to = null;
+			$mo_comment = $comment;
+			$mo_comment_date = date('Y-m-d H:i:s');
+			$mo_comment_ul = $comment_upload;
+			$ro_reply_comment = null;
+			$ro_reply_comment_date = null;
+			$rr_comment_ul = null;
+
+		} elseif ($reffered_back_to == 'Level3ToLevel1') { // this '1' is added to 'level' as it was not there for RO - MO communication on AKASH [19-08-2022]
+
+			$form_status = $forms_data['form_status'];
+			$reffered_back_comment = $forms_data['reffered_back_comment'];
+			$reffered_back_date = $forms_data['reffered_back_date'];
+			$rb_comment_ul = $forms_data['rb_comment_ul'];
+			$ro_current_comment_to = 'mo';
+			$mo_comment = null;
+			$mo_comment_date = null;
+			$mo_comment_ul = null;
+			$ro_reply_comment = $comment;
+			$ro_reply_comment_date = date('Y-m-d H:i:s');
+			$rr_comment_ul = $comment_upload;
+		}
+
+		$newEntity = $this->newEntity(array(
+
+			'customer_id'=>$customer_id,
+			'reason'=>$forms_data['reason'],
+			'reffered_back_comment'=>$reffered_back_comment,
+			'reffered_back_date'=>$reffered_back_date,
+			'form_status'=>$form_status,
+			'rb_comment_ul'=>$rb_comment_ul,
+			'current_level'=>$current_level,
+			'ro_current_comment_to'=>$ro_current_comment_to,
+			'mo_comment'=>$mo_comment,
+			'mo_comment_date'=>$mo_comment_date,
+			'mo_comment_ul'=>$mo_comment_ul,
+			'ro_reply_comment'=>$ro_reply_comment,
+			'ro_reply_comment_date'=>$ro_reply_comment_date,
+			'rr_comment_ul'=>$rr_comment_ul,
+			'created'=>$created_date,
+			'modified'=>date('Y-m-d H:i:s'),
+            'appeal_id' =>$forms_data['appeal_id'],
+            'status' => $forms_data['status'],
+            'supported_documents' => $forms_data['supported_documents']
+		));
+
+		if($this->save($newEntity)){
+
+			if($oldapplication == 'yes'){
+
+				$old_certificate_details = $DmiOldApplicationDetails->oldApplicationCertificationDetails($customer_id);
+
+				$DmiOldApplicationDetailsEntity = $DmiOldApplicationDetails->newEntity(array(
+										'id'=>$old_certificate_details['id'],
+										'old_certificate_pdf'=>$old_certificate_details['old_certificate_pdf'],
+										'old_application_docs'=>$old_certificate_details['old_application_docs'],
+				));
+
+				if($DmiOldApplicationDetails->save($DmiOldApplicationDetailsEntity)){ return true;  }
+
+			}else{ return true; }
+		}
+
+	}
+
 }
