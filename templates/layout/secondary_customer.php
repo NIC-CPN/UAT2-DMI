@@ -28,7 +28,7 @@
 		echo $this->Html->css('custom-style');
 		echo $this->Html->css('../select2/css/select2.min');
 		echo $this->Html->css('jquery-confirm.min');
-        echo $this->Html->css('../dashboard/css/bootstrap-glyphicons.min');
+		echo $this->Html->css('../dashboard/css/bootstrap-glyphicons.min');
 
 		// new template css end
 
