@@ -665,9 +665,10 @@ class ScrutinyController extends AppController{
 					$message_theme = "success";
 					$redirect_to = "../dashboard/home";
 
-				}elseif($application_type==9 || ($application_type==3 && $changeInspection=='no')){//updated condition 21-12-2022 for change flow
+				}elseif($application_type==9 || $application_type==12 || ($application_type==3 && $changeInspection=='no')){//updated condition 21-12-2022 for change flow
 
 					//For Surrender Application
+					//For Appeal - Joshi, Akash
 					$this->Romoioapplicantcommunicationactions->afterScrutinyForwardToRo($customer_id,$application_type,$grantDateCondition,$Dmi_allocation_table,$Dmi_appl_current_pos_table);
 					$this->Customfunctions->saveActionPoint('All Section Scrutinized and Sent to the RO', 'Success'); #Action
 					$message = $firm_type_text." - All sections scrutinized and forwarded to RO successfully";
