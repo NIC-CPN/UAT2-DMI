@@ -175,7 +175,7 @@ class RomoioapplicantcommunicationactionsComponent extends Component {
 					//condition added on 13-04-2023 by Amol, to avoid redirect after all section scrutinized
 					//FLOWS : Chemist , Surrender, Change
 					$office_type = $this->Customfunctions->getApplDistrictOffice($customer_id);
-					if($application_type==3 || $application_type==4 || $application_type==9){
+					if($application_type==3 || $application_type==4 || $application_type==9 || $application_type==12){
 					
 						//added officetype =='SO' on 24-05-2023 by Amol, to stay on same page after scrutiny
 						if (($office_type=='RO' || $office_type=='SO') && $application_type==3) {
@@ -205,9 +205,14 @@ class RomoioapplicantcommunicationactionsComponent extends Component {
 						}
 							
 						
-						} elseif ($office_type=='RO' && $application_type==9) {
+						} 
+						//Added for Appeal Support, Inspection is not required for appeal hence instead of loading home we need to stay on scrutiny page 
+						//to provide provision of forwarding.. 
+						elseif ($office_type=='RO' && ($application_type==9 || $application_type==12)) {
 							return 2;
 						}
+						
+						
 						
 					}
 
