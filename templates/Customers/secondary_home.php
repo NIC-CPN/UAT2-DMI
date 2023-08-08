@@ -140,7 +140,6 @@
 												#For Displaying the Grant PDF Table#
 												if ($show_grant_table == 'yes') {
 													echo $this->element('customer_elements/pdf_table_view/grant/gen_grant');
-                                                    echo $this->element('customer_elements/pdf_table_view/application/apl_application');
 												}
 
 												#For Displaying the Renewal PDF Table#
