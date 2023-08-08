@@ -921,7 +921,11 @@ class DashboardController extends AppController{
 									$inspection = 'no';
 								}
 
-								
+								//This condition block is applied for the flow of Appeal having application_type = 12.
+								//to skip the skip the allocation for inspection part - JOshi, Akash [08-08-2023]
+							    elseif($each_flow['application_type']=='12'){
+									$inspection = 'no';
+								}
 
 								if($inspection == 'yes'){
 
