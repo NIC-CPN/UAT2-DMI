@@ -539,7 +539,8 @@ class FlowbuttonsComponent extends Component {
 			
 			//for E-Code application, HO approval required
 			//added on 22-11-2021 by Amol
-			}elseif($applicationType == 6){
+			//For Appeal HO approval required - Joshi, Akash 08-Aug-2023
+			}elseif($applicationType == 6 || $applicationType == 12){
 
 				$HoInspectionExist = 'yes';
 			}		

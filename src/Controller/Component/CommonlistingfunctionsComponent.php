@@ -534,7 +534,7 @@
 
 			#This below condition block is modified.
 			# -> To allow the listing of the Surrender Flow the application_type = 9 is added to the block - Akash[05-12-2022]
-			if ($appl_type_id == 2 || $appl_type_id == 3 || $appl_type_id == 9) {//added temp for all change flow to avoid level 2 check, on 14-04-2023
+			if ($appl_type_id == 2 || $appl_type_id == 3 || $appl_type_id == 9 || $appl_type_id == 12) {//added temp for all change flow to avoid level 2 check, on 14-04-2023
 				$level2 = null;
 			} else {
 				$level2 = "and al.level_2 IS NOT NULL";
