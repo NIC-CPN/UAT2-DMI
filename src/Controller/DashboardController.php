@@ -10,8 +10,8 @@ use App\Network\Request\Request;
 use App\Network\Response\Response;
 use Cake\Datasource\ConnectionManager;
 use Cake\Event\EventInterface;
-
-
+use Cake\ORM\Query;
+use Cake\Database\Expression\QueryExpression;
 class DashboardController extends AppController{
 
 		var $name = 'Dashboard';
@@ -1202,9 +1202,21 @@ class DashboardController extends AppController{
 					elseif($for_level=='level_4'){ //for HO level scrutiny allocations
 
 						if($sub_tab=='scrutiny_allocation_tab'){
-
-							$get_allocations = $this->$ho_allocation_table->find('all',array('conditions' => array('dy_ama IS'=>$username)))->toArray();
-
+                         
+						// Joshi, Akash
+						// Commenting below, because once Dy. AMA forward to Jt. AMA then application should not visible to Dy. AMA, but applications
+						// will be visible to Dy. AMA if Dy. AMA need to move application from one scrutiny officer to another scrutiny officer. 
+						//$get_allocations = $this->$ho_allocation_table->find('all',array('conditions' => array('dy_ama IS'=>$username)))->toArray();
+                        
+						//Joshi, Akash: If application is not available(current_level) with jt_ama or ama then system will display applications to Dy. AMA.
+						//In Below query we are comparing based on column which implicit fetch the value for particular column, rather than comparing with value.
+						   $query = $this->$ho_allocation_table->
+						       find()->where(function (QueryExpression $exp, Query $q) use ($username) {
+								return $exp->notEq('current_level', $q->identifier('jt_ama'))
+								         	->notEq('current_level', $q->identifier('ama'))
+											->eq('dy_ama', $username);
+							});
+ 							$get_allocations = $query->all()->toArray();
 							foreach($get_allocations as $each_alloc){
 
 								$creat_array='';//clear variable each time
