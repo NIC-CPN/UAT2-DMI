@@ -775,9 +775,13 @@
 
 				$all_report_status = 'true';
 				$flagToShowApplWOReport = 'yes';
-			
+			}
+
 			//The Below code is added for appl 9 : Surrender Flow to avoid the site inspection- Akash[02-12-2022]
-			}elseif($appl_type_id == 9){ 
+			//An additional condition was introduced for the "Appeal" process. 
+			//This condition was necessary to ensure that the "Appeal" application becomes visible on the RO dashboard
+			//when the RO receives the appeal application from Dy. AMA [Joshi, Akash, August 11, 2023].
+			elseif($appl_type_id == 9 || $appl_type_id==12){ 
 				$all_report_status = 'true';
 				$flagToShowApplWOReport = 'yes';
 			
