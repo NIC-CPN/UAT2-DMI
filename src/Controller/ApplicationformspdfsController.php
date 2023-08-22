@@ -4717,7 +4717,8 @@ class ApplicationformspdfsController extends AppController{
                 $this->loadModel('DmiCustomers');
                 $this->loadModel('DmiDistricts');
                 $this->loadModel('DmiStates');
-                $customer_id = $this->Session->read('username');
+				$customer_id=$this->Session->read('customer_id');
+                $username = $this->Session->read('username');
                 $this->set('customer_id',$customer_id);
 
                 //get nodal office of the applied CA
@@ -4747,7 +4748,7 @@ class ApplicationformspdfsController extends AppController{
                 $rejectApplicationDetails = $this->Customfunctions->isApplicationRejected($customer_id);
                 $this->set('rejection_date',$rejectApplicationDetails['created']);
                 //
-                $this->generateApplicationPdf('/Applicationformspdfs/grantAppealPdf');
+                $this->generateGrantCerticatePdf('/Applicationformspdfs/grantAppealPdf');
             }
 }
 ?>
