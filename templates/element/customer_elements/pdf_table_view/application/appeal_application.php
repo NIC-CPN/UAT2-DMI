@@ -10,7 +10,7 @@
                     <th>Appeal Submission Date</th>
                     <th>Status</th>
                     <th>Appeal Application</th>
-                    <th>Rejected Application</th>
+                    <th>Rejection Reason of Original Application</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -30,9 +30,7 @@
                     <td>
                        <a title="Open" target="blank" href="<?php echo $this->request->getAttribute("webroot");?>application/application-type/12" ><span class="glyphicon glyphicon-new-window"></span></a>
                     </td>
-                    <td>
-                       <a title="Open" target="blank" href="<?php echo $this->request->getAttribute("webroot");?>application/application-type/<?php echo $is_appl_rejected['appl_type']?>"><span class="glyphicon glyphicon-new-window"></span></a>
-                    </td>
+                    <td ><?php echo $is_appl_rejected['remark']; ?></td>
                 </tr>
                 </tbody>
             </table>
