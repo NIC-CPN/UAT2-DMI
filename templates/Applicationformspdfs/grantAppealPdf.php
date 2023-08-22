@@ -19,7 +19,7 @@
 <table width="100%" border="1">
 		<tr>
 		<td align="center" style="padding:5px;">		
-			<h4>Certificate of Grant of Appeal </h4>
+			<h4> Appeal Grant Certificate</h4>
 		</td>
 		</tr>
 </table>
