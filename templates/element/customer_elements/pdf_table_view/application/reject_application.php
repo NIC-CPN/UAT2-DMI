@@ -8,7 +8,7 @@
                     <th>Applicant Id</th>
                     <th>Rejection Reason</th>
                     <th>Rejection Date</th>
-                    <th>Deadline for filing application</th>
+                    <th>Deadline for filing appeal</th>
                     <th>Action</th>
                 </tr>
                 </thead>

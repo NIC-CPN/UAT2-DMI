@@ -4662,7 +4662,7 @@ class ApplicationformspdfsController extends AppController{
 			$this->redirect('/chemist/listOfChemistApplRalToRo');
 			}
 
-                   /** Author: Akash Joshi
+            /** Author: Akash Joshi
              * appealFormPdf
              *
              * @return void
@@ -4704,6 +4704,50 @@ class ApplicationformspdfsController extends AppController{
                 $this->set('rejection_date',$rejectApplicationDetails['created']);
                 //
                 $this->generateApplicationPdf('/Applicationformspdfs/appealFormPdf');
+            }
+
+			/** Author: Akash Joshi
+             * appealFormPdf
+             *
+             * @return void
+             */
+            public function grantAppealPdf(){
+
+                $this->loadModel('DmiFirms');
+                $this->loadModel('DmiCustomers');
+                $this->loadModel('DmiDistricts');
+                $this->loadModel('DmiStates');
+                $customer_id = $this->Session->read('username');
+                $this->set('customer_id',$customer_id);
+
+                //get nodal office of the applied CA
+                $this->loadModel('DmiApplWithRoMappings');
+                $get_office = $this->DmiApplWithRoMappings->getOfficeDetails($customer_id);
+                $this->set('get_office',$get_office);
+
+                $pdf_date = date('d-m-Y');
+                $this->set('pdf_date',$pdf_date);
+
+                // data from DMI Firm Table
+                $firmData = $this->DmiFirms->find('all',array('conditions'=>array('customer_id IS'=>$customer_id)))->first();
+                $this->set('firmData',$firmData);
+
+                // data from DMI Customer Table
+                $customerData = $this->DmiCustomers->getCustomerDetails($firmData['customer_primary_id']);
+                $this->set('customerData',$customerData);
+
+                // to show firm distric name form id
+                $firm_district_name = $this->DmiDistricts->getDistrictNameById($firmData['district']);
+                $this->set('firm_district_name',$firm_district_name);
+
+                // to show firm state name form id
+                $firm_state_name = $this->DmiStates->getStateNameById($firmData['state']);
+                $this->set('firm_state_name',$firm_state_name);
+                //
+                $rejectApplicationDetails = $this->Customfunctions->isApplicationRejected($customer_id);
+                $this->set('rejection_date',$rejectApplicationDetails['created']);
+                //
+                $this->generateApplicationPdf('/Applicationformspdfs/grantAppealPdf');
             }
 }
 ?>

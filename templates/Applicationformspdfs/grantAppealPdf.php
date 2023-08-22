@@ -31,11 +31,11 @@
 </table>	
 <table  width="100%">
     <tr>
-       <td><?php echo $customer_firm_data['firm_name'].',<br>';
-        echo $customer_firm_data['street_address'].', <br>'; 
+       <td><?php echo $firmData['firm_name'].',<br>';
+        echo $firmData['street_address'].', <br>'; 
         echo $firm_district_name.', '; 
         echo $firm_state_name.', ';?>
-       <?php echo $customer_firm_data['postal_code'].'.<br>'; 
+       <?php echo $firmData['postal_code'].'.<br>'; 
        Date:  echo $pdf_date; ?></td>
 	</tr>
 
@@ -48,20 +48,9 @@
 	</tr>
 
     <tr>
-		<td><br>We have granted approval for your appeal application for your ID: Candidate ID.</td>
+		<td><br>We have granted approval for your appeal application which you initiated against your candidate ID <?php echo $customer_id; ?>.<br><br></td>
 	</tr>
         
-    <tr>
-		<td><br><br>List of the designated persons approved:</td><br>
-	</tr>
-
-        <?php 
-		     $i=1;
-		    foreach($designated_person as $person_detail){?>
-        <tr>
-		    <td><?php echo $i .")". " ". $person_detail['person_name'];?></td>
-        </tr>
-        <?php $i=$i+1;} ?>
 </table>
 
 <table>	
