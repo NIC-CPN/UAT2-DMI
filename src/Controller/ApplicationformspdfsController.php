@@ -388,8 +388,10 @@ class ApplicationformspdfsController extends AppController{
 			$pdfPrefix = 'ADP-';
 		}elseif($application_type==3){ //added by Amol 13-04-2023 for change/modification
 			$pdfPrefix = 'MOD-';
-		}elseif($application_type==9){ #For Surrender Application -Akash [14-04-2023]
+		}elseif($application_type==9){ //For Surrender Application -Akash [14-04-2023]
 			$pdfPrefix = 'SOC-';
+		}elseif($application_type==12){ //For Appeal Application -Akash Joshi[23-08-2023]
+			$pdfPrefix = 'APL-';
 		}
 
 
