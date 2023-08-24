@@ -58,7 +58,9 @@ class EsignController extends AppController {
 		$flow_type = $this->Session->read('application_type');
 		
 		$Dmi_flow_wise_tables_list = TableRegistry::getTableLocator()->get('DmiFlowWiseTablesLists');
-		$Dmi_flow_wise_tables = $Dmi_flow_wise_tables_list->find('all',array('conditions'=>array('id IS'=>$flow_type)))->first();
+
+		//instead of putting id in where clause, replacing id with application_type for true filteration
+		$Dmi_flow_wise_tables = $Dmi_flow_wise_tables_list->find('all',array('conditions'=>array('application_type IS'=>$flow_type)))->first();
 			
 		$Dmi_esign_status_tb = TableRegistry::getTableLocator()->get($Dmi_flow_wise_tables['esign_status']);
 	
@@ -72,7 +74,7 @@ class EsignController extends AppController {
 		$pdf_file_name = $this->Session->read('pdf_file_name');	
 
 		//if response from ESP for esign request
-		if($this->request->is('post')){
+	//	if($this->request->is('post')){
 			
 			//to get FORM base method response POST and convert into associative array
 			////updated on 31-05-2021 for Form Based Esign method by Amol
@@ -132,7 +134,7 @@ class EsignController extends AppController {
 				$this->redirect('https://10.158.81.78/UAT-DMI/esign/esign_issue');//updated on 31-05-2021 for Form Based Esign method by Amol
 			}
 			
-		}
+		//}
 		
 	}
 	
