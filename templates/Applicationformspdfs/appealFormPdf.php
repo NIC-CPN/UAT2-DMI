@@ -50,7 +50,7 @@
 		<tr>
 			<td>
 				<br>With reference to the DMI RO/SO Intimation of rejection letter dated <?php echo $rejection_date; ?> for conveying the
-                    rejection of my application of <?php echo $firmData['firm_name'].' , '.$firmData['street_address'].' , '.$firm_district_name.' , '.$firm_state_name; ?> having AQCMS id <?php echo $customer_id; ?><br>
+                    rejection of my application (Application Type: <u><?php echo $associated_rejected_app_title ?></u>) of <?php echo $firmData['firm_name'].' , '.$firmData['street_address'].' , '.$firm_district_name.' , '.$firm_state_name; ?> having AQCMS id <?php echo $customer_id; ?><br>
                     In this connection, I wish to appeal against the decision of rejection of above application and hereby
                     appeal and submit the required additional documents (if any) for reconsideration of above application.
 			</td>

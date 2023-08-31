@@ -5,7 +5,7 @@
 	use Cake\ORM\TableRegistry;
     use App\Controller\CustomersController;
 
-    enum AppealStatus: string
+     enum AppealStatus: string
     {
         case InProcess = 'In Process';
         case Granted  ='granted';
@@ -25,66 +25,82 @@
 
 
 
-	public function userCurrentApplications($user_email_id)
+	// public function userCurrentApplications($user_email_id)
+	// {
+	// 	$fetch_data = $this->find('all',array('conditions'=>array('current_user_email_id IS'=>$user_email_id)))->toArray();
+
+	// 	return $fetch_data;
+	// }
+
+
+	// public function currentUserEntry($customer_id,$user_email_id,$current_level)
+	// {
+	// 	$Entity = $this->newEntity(array(
+	// 		'customer_id'=>$customer_id,
+	// 		'current_level'=>$current_level,
+	// 		'current_user_email_id'=>$user_email_id,
+	// 		'created'=>date('Y-m-d H:i:s')
+	// 	 ));
+	// 	 $this->save($Entity);
+
+	// }
+
+
+	// public function currentUserUpdate($customer_id,$user_email_id,$current_level)
+	// {
+
+	// 	$find_row_id = $this->find('all',array('fields'=>'id', 'conditions'=>array('customer_id IS'=>$customer_id),'order'=>array('id DESC')))->first();
+	// 	$row_id = $find_row_id['id'];
+
+	// 	$newEntity = $this->newEntity(array(
+	// 		'id'=>$row_id,
+	// 		'current_level'=>$current_level,
+	// 		'current_user_email_id'=>$user_email_id,
+	// 		'modified'=>date('Y-m-d H:i:s')
+	// 	 ));
+
+	// 	 $this->save($newEntity);
+	// 	return true;
+	// }
+
+
+	public function getLatestAppeal($customer_id)
 	{
-		$fetch_data = $this->find('all',array('conditions'=>array('current_user_email_id IS'=>$user_email_id)))->toArray();
-
-		return $fetch_data;
+	//	$condition=array('customer_id IS'=>$customer_id,'status NOT IN'=>['Granted','Rejected']);	
+	$condition=array('customer_id IS'=>$customer_id);
+	 return $this->find('all', array('conditions'=>$condition,'order'=>'id desc'))->first();     
 	}
-
-
-	public function currentUserEntry($customer_id,$user_email_id,$current_level)
-	{
-		$Entity = $this->newEntity(array(
-			'customer_id'=>$customer_id,
-			'current_level'=>$current_level,
-			'current_user_email_id'=>$user_email_id,
-			'created'=>date('Y-m-d H:i:s')
-		 ));
-		 $this->save($Entity);
-
-	}
-
-
-	public function currentUserUpdate($customer_id,$user_email_id,$current_level)
-	{
-
-		$find_row_id = $this->find('all',array('fields'=>'id', 'conditions'=>array('customer_id IS'=>$customer_id),'order'=>array('id DESC')))->first();
-		$row_id = $find_row_id['id'];
-
-		$newEntity = $this->newEntity(array(
-			'id'=>$row_id,
-			'current_level'=>$current_level,
-			'current_user_email_id'=>$user_email_id,
-			'modified'=>date('Y-m-d H:i:s')
-		 ));
-
-		 $this->save($newEntity);
-		return true;
-	}
-
     	// Fetch form section all details
 	public function sectionFormDetails($customer_id){
+		//Joshi, Akash:- Specific condition for appeal, as single customer can have multiple appeals...[28-08-2023]
+		$associated_rejected_app_type=$_SESSION['associated_rejected_app_type'];
+	
+		//sectionFormDetails can be called from DMI user as well, at that time associated rejected application won't be available
+		$isApplicant=!empty($associated_rejected_app_type);
+		$condition= array();
+		if($isApplicant)
+		{
+			$condition=array('customer_id IS'=>$customer_id,'associated_appl_type'=>$associated_rejected_app_type);
+		}
+		else{
+			//Need to fetch latest for DMI officials/officer.
+			$condition=array('customer_id IS'=>$customer_id);	
+		}
+		$form_fields_details = $this->find('all', array('conditions'=>$condition,'order'=>'id desc'))->first();
 
-		$latest_id = $this->find('list', array('valueField'=>'id', 'conditions'=>array('customer_id IS'=>$customer_id)))->toArray();
-
-		if($latest_id != null){
-			$form_fields_details = $this->find('all', array('conditions'=>array('id'=>MAX($latest_id))))->first();
-
-		}else{
+		if(empty($form_fields_details)){
 			$form_fields_details = Array ( 'id'=>"",'created' => "", 'modified' =>"", 'customer_id' => "", 'reffered_back_comment' => "",
 											'reffered_back_date' => "", 'form_status' =>"", 'customer_reply' =>"", 'customer_reply_date' =>"",
 											'approved_date' => "",'current_level' => "",'mo_comment' =>"", 'mo_comment_date' => "",
 											'ro_reply_comment' =>"", 'ro_reply_comment_date' =>"", 'delete_mo_comment' =>"", 'delete_ro_reply' => "",
 											'delete_ro_referred_back' => "", 'delete_customer_reply' => "", 'ro_current_comment_to' => "",
 											'rb_comment_ul'=>"",'mo_comment_ul'=>"",'rr_comment_ul'=>"",'cr_comment_ul'=>"",
-											'reason' =>"",'appeal_id'=>"",'supported_document'=>"",'status'=>""
+											'reason' =>"",'appeal_id'=>"",'supported_document'=>"",'status'=>"",'associated_appl_type'=>"",'is_final_submitted'=>""
 
 										);
 
 		}
 		return array($form_fields_details);
-
 	}
 
     // save or update form data and comment reply by applicant
@@ -137,14 +153,19 @@
             $appealStatus='';
 			if (empty($section_form_details[0]['created'])) {
 				$created = date('Y-m-d H:i:s');
-                $appealStatus = AppealStatus::InProcess;
+                $appealStatus = "In Process";
             } else {
 				//added date function on 31-05-2021 by Amol to convert date format, as saving null
 				$created = $CustomersController->Customfunctions->changeDateFormat($section_form_details[0]['created']);
 			}
 
-            $appealId=$section_form_details[0]['appeal_id'];
-            $appealId=empty($appealId)?$this->generateAppealID($customer_id):$appealId;
+            
+
+			$associated_rejected_app_type =  $section_form_details[0]['associated_appl_type'];
+			$associated_rejected_app_type =  empty($associated_rejected_app_type)?$_SESSION['associated_rejected_app_type']:$associated_rejected_app_type;
+
+			$appealId=$section_form_details[0]['appeal_id'];
+            $appealId=empty($appealId)?$this->generateAppealID($customer_id, $associated_rejected_app_type):$appealId;
 
             //In Case of Update, Need to put ID, at above lines we are fetching Max ID in case of referred back,
             //however we have to keep track of id for update case as well.
@@ -152,6 +173,7 @@
             {
                 $max_id= $this->$section_form_details[0]['id'];
             }
+			
             $newEntity = $this->newEntity(array(
 
 				'id'=>$max_id,
@@ -165,24 +187,28 @@
 				'created'=>$created,
 				'modified'=>date('Y-m-d H:i:s'),
                 'appeal_id'=>$appealId,
-                'status'=>$appealStatus->value
+                'status'=>$appealStatus,
+				'associated_appl_type' =>$associated_rejected_app_type
 			));
 
 			if ($this->save($newEntity)) {
-                $rejectApplicationDetails = $CustomersController->Customfunctions->isApplicationRejected($customer_id);
-                if(empty($rejectApplicationDetails['appeal_id']))
+                $rejectApplicationDetails = $CustomersController->Customfunctions->isApplicationRejected($customer_id,$associated_rejected_app_type);
+                if (!empty($rejectApplicationDetails)) {
+					$firstRejectedApplication = reset($rejectApplicationDetails);
+				if(empty($firstRejectedApplication['appeal_id']))
                 {
-                return $this->addAppealInfoInRejectLogTable($rejectApplicationDetails['id'],$appealId)?1:0;
+                return $this->addAppealInfoInRejectLogTable($firstRejectedApplication['id'],$appealId)?1:0;
                 }
-                else{
-                    return 1;
-                }
+				
+			}
+                    return 1;  
             }
 		} else {
          return false;
         }
 
 	}
+    //Joshi, Akash, below method will check in-process existing Appeal
 	public function postDataValidation($customer_id,$forms_data){
 		$returnValue = true;
 		return $returnValue;
@@ -197,21 +223,31 @@
         ));
         return $dmiRejectedApplLogs->save($newEntity);
     }
-    public function generateAppealID($customer_id){
-        return 'APL-'.$customer_id;
+    public function generateAppealID($customer_id,$associated_rejected_app_type){
+        return 'APL-'.$customer_id.'-'.$associated_rejected_app_type;
     }
 
 
-    public function updateAppealStatus($appealID, AppealStatus $status)
+    public function updateAppealStatus($appealID, $status)
     {
         $newEntity = $this->newEntity(array(
             'id'=>$appealID,
-            'status'=>$status->value,
+            'status'=>$status,
             'modified'=>date('Y-m-d H:i:s')
         ));
         return $this->save($newEntity);
     }
 
+
+	public function markAppealSubmitted($customer_id, $associated_appl_type)
+    {
+		$form_fields_details = $this->find('all', array('conditions'=>['customer_id'=>$customer_id, 'associated_appl_type'=>$associated_appl_type],'order'=>'id desc'))->first();
+        $newEntity = $this->newEntity(array(
+            'id'=>$form_fields_details['id'],
+            'is_final_submitted'=>'yes'
+        ));
+        return $this->save($newEntity);
+    }
 
 	// To save 	RO/SO referred back  and MO reply comment
 	public function saveReferredBackComment ($customer_id,$forms_data,$comment,$comment_upload,$reffered_back_to) {
@@ -291,7 +327,8 @@
 			'modified'=>date('Y-m-d H:i:s'),
             'appeal_id' =>$forms_data['appeal_id'],
             'status' => $forms_data['status'],
-            'supported_documents' => $forms_data['supported_documents']
+            'supported_documents' => $forms_data['supported_documents'],
+			'associated_appl_type' =>$forms_data['associated_appl_type']
 		));
 
 		if($this->save($newEntity)){

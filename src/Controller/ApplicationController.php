@@ -210,7 +210,14 @@ class ApplicationController extends AppController{
 		$this->Session->write('application_type',$id);
 		$this->Session->write('section_id',null);
 		$this->Session->write('current_level','applicant');
-
+		//Joshi, Akash - 26-08-2023[Appeal Support]
+		//Added below logic to fetch associated rejected application type, to stamp application type onto appeal.
+		//Multiple applications can be rejected hence only customer_id is insufficent to fetch exact appeal hence associated-rejected
+		//application type will help in one to one mapping
+		if($id==12){
+        $associated_rejected_app_type = $this->request->getQuery('associated-rejectedapp');
+		$this->Session->write('associated_rejected_app_type',$associated_rejected_app_type);
+		}
 		if ($id==3) { $this->redirect('/application/change-request'); }
 		else{ $this->redirect('/application/application-for-certificate'); }
 	}

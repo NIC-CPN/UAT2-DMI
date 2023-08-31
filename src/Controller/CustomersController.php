@@ -1213,7 +1213,7 @@ class CustomersController extends AppController {
 		$this->loadModel('DmiAdpFinalSubmits');
 		$this->loadModel('DmiSurrenderFinalSubmits');
 		$this->loadModel('DmiAdvPaymentDetails');
-
+		$this->loadModel('DmiApplicationTypes');
 
 		$commoditiesDetails = $this->Customfunctions->commodityNames($customer_id);
 		$this->set('commoditiesDetails',$commoditiesDetails);
@@ -1487,8 +1487,12 @@ class CustomersController extends AppController {
 			//To check if the application is rejected or junked and set the custom message - Akash[14-11-2022]
 			$is_appl_rejected =  $this->Customfunctions->isApplicationRejected($customer_id);
 			$this->set('is_appl_rejected',$is_appl_rejected);
+			$results = $this->DmiApplicationTypes->find('all')->combine('id', function ($row) {
+				return $row['application_type'];
+			})->toArray();
+			$this->set('appl_mapping',$results);
             if(!empty($is_appl_rejected)){
-            $this->_performAppealRelatedActivityInSecondaryHome($customer_id,$is_appl_rejected['appeal_id']);
+            $this->_performAppealRelatedActivityInSecondaryHome($customer_id,$is_appl_rejected);
             }
 
 			//To check0 if the application is surrendered  and set the custom message - Akash[06-12-2022]
@@ -2491,31 +2495,63 @@ class CustomersController extends AppController {
     //Author: Akash Joshi
     //Parameter: Customer ID - Required, Appeal ID- Optional
     //This method is helper method for secondaryHome API.
-    private function _performAppealRelatedActivityInSecondaryHome($customer_id,$appeal_id=null){
+    private function _performAppealRelatedActivityInSecondaryHome($customer_id,$rejectedApplications){
             $this->loadModel('DmiAplFinalSubmits');
+			$this->loadModel('DmiAplFormDetails');
+
+			//fetching application_type from variable rejectedApplications and injesting into map/array.
             $final_appeal_submit_data = $this->DmiAplFinalSubmits->find('all',
                                                     array('conditions'=>
                                                             array('customer_id IS' => $customer_id),
                                                                         'order'=>'id desc'))->first();
-
              $this->set('final_apl_submit_status','no_final_submit');
-
             // Adding check to eliminate unnecessary DB call to fetch PDF for non existing entries. - Akash Joshi[Performance Optimal]
+			
+
 			if (!empty($final_appeal_submit_data)) {
-				$final_submit_level = $final_appeal_submit_data['current_level'];
 				$this->set('final_apl_submit_status',
                             empty($final_appeal_submit_data['status'])?
                             'no_final_submit': $final_appeal_submit_data['status']);
-				if(!empty($final_submit_level)){
-                    $this->set('final_apl_submit_level', $final_submit_level);
-                }
+				
                 $this->loadModel('DmiAplPdfRecords');
-			    $apl_pdfs_records = $this->DmiAplPdfRecords->find('all',
-                                                                array('conditions' =>
-                                                                array('customer_id IS' => $customer_id)))->first();
-			    $this->set('apl_pdfs_records', $apl_pdfs_records);
-                $appeal_details =  $this->Customfunctions->getAppealDetails($customer_id,$appeal_id);
+			    $apl_pdfs_records = $this->DmiAplPdfRecords->find()
+															->where(['customer_id IS' => $customer_id])
+															->order(['id' => 'desc'])
+															->toArray();	
+				$this->set('apl_pdfs_records', $apl_pdfs_records);
+				//Instead of passing pdf array, need to pass it along with appeal list for accurate iteration.
+				//
+                $appeal_details =  $this->Customfunctions->getAppealDetails($customer_id);
                 $this->set('appeal_details',$appeal_details);
+
+				//Joshi, Akash. Need to pass flag to disable appeal creation, if there is appeal already is in progress..
+				$grantDateCondition = $this->Customfunctions->returnGrantDateCondition($customer_id,12);
+
+		    	$InProcessAppeal = $this->DmiAplFinalSubmits->find('all', array('conditions' => array('customer_id IS' => $customer_id, $grantDateCondition)))->first();
+		    	$this->set('InProcessAppeal', $InProcessAppeal);
+
+				
+                $appeal_details = $this->Customfunctions->getAppealDetails($customer_id);
+
+                //Creating a key-value map using appeal_id as the key
+				$appealMap = [];
+				foreach ($appeal_details as $appealDetail) {
+    				$appealMap[$appealDetail['appeal_id']] = $appealDetail;
+				}
+	
+	     	    $supportingDocuments = []; 
+		
+		        foreach ($apl_pdfs_records as $record) {
+			    $appealId = $record->appeal_id;
+			
+			    if (!isset($supportingDocuments[$appealId])) {
+			    	$supportingDocuments[$appealId] = [];
+			   }	
+			   $supportingDocuments[$appealId][] = $record;
+	        	}
+				
+		    	$this->set('appealMap', $appealMap);
+				$this->set('supportingDocuments', $supportingDocuments);
 			}
     }
 }

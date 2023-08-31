@@ -86,15 +86,22 @@
 												if ($is_already_granted == 'no') {
 
                                                     if($is_appl_rejected != null ){
+														 #This Below Block is added to Show the Message when the application is rejected -= Akash [25-11-2022]
+                                                        
+														 echo $this->element('customer_elements/dash_messages/for_rejected');
+
+														 if(!empty($InProcessAppeal))
+														 {
+															echo $this->element('customer_elements/dash_messages/alert_for_inprocess_appeal');
+
+														 }
+														 // For Displaying Rejected Application
+														 echo $this->element('customer_elements/pdf_table_view/application/reject_application');
+															
                                                          if($final_apl_submit_status != 'no_final_submit'){
                                                         echo $this->element('customer_elements/pdf_table_view/application/appeal_application');
                                                          }
-                                                        #This Below Block is added to Show the Message when the application is rejected -= Akash [25-11-2022]
-                                                        else{
-														echo $this->element('customer_elements/dash_messages/for_rejected');
-														// For Displaying Rejected Application
-														echo $this->element('customer_elements/pdf_table_view/application/reject_application');
-                                       			        }
+                                                       
                                                 }
 													#For Displaying the Application PDF Table#
 													echo $this->element('customer_elements/pdf_table_view/application/general_application');
@@ -103,15 +110,21 @@
 
 													#This Below Block is added to Show the Message when the application is rejected - Akash [25-11-2022]
 													if($is_appl_rejected != NULL){
+														     #This Below Block is added to Show the Message when the application is rejected -= Akash [25-11-2022]  
+															 echo $this->element('customer_elements/dash_messages/for_rejected');
+															 
+															 if(!empty($InProcessAppeal))
+															 {
+																echo $this->element('customer_elements/dash_messages/alert_for_inprocess_appeal');
+	
+															 }
+															 // For Displaying Rejected Application - Joshi, Akash
+															 echo $this->element('customer_elements/pdf_table_view/application/reject_application');
                                                         if($final_apl_submit_status != 'no_final_submit'){
                                                             echo $this->element('customer_elements/pdf_table_view/application/appeal_application');
                                                              }
-                                                            #This Below Block is added to Show the Message when the application is rejected -= Akash [25-11-2022]
-                                                            else{
-                                                            echo $this->element('customer_elements/dash_messages/for_rejected');
-                                                            // For Displaying Rejected Application
-                                                            echo $this->element('customer_elements/pdf_table_view/application/reject_application');
-                                                            }
+                                                       
+                                                            
 													}else{
 														echo $this->element('customer_elements/dash_messages/for_old_appl_saved');
 													}

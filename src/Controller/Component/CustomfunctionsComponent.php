@@ -2856,6 +2856,12 @@ class CustomfunctionsComponent extends Component {
 		 	$grantDate = $DmiRtiFinalReports->find('all',array('conditions'=>array('customer_id IS'=>$customer_id,'status'=>'approved'),'order'=>'id DESC'))->first();
 
 		 }
+		 elseif ($application_type == 12) { //added on 28-08-2023 by Joshi, Akash 
+			// For application type = 12 then fetch grant date from DmiAplGrantCertificatePdfs
+			$DmiAplGrantCertificatePdfs = TableRegistry::getTableLocator()->get('DmiAplGrantCertificatePdfs');
+			$grantDate = $DmiAplGrantCertificatePdfs->find('all',array('conditions'=>array('customer_id IS'=>$customer_id),'order'=>'id DESC'))->first();
+
+		}
 
 
 		if ($advancepayment == 'yes') {
@@ -3729,14 +3735,23 @@ class CustomfunctionsComponent extends Component {
 	//Date : 14-11-2022
 
 	//updated function on 28-04-2023 by Amol, added new parameter $appl_type=null
+	//Modified by Akash Joshi on 01-08-2023 for appeal support.
 	public function isApplicationRejected($username,$appl_type=null){
-        $condition_arr= array('customer_id IS'=>$username);
-        if($appl_type =! null){
-        array_push($condition_arr, array('appl_type IS'=>$appl_type));
+		//Joshi, Akash 
+		//Method showButtonOnSecondaryHome from Beforepageload calls this API, that call 
+		//is reduntant becuase that call is before login where expecting username from session is invalid 
+		//in order to make that work, for temporary basis returning empty array .
+		if(empty($username)){
+			return array();
+		  }
+        $condition= "customer_id = '".$username."'";
+        if($appl_type !== null){
+			$condition=$condition." and appl_type = '".$appl_type."'";
         }
-		$DmiRejectedApplLogs = TableRegistry::getTableLocator()->get('DmiRejectedApplLogs');
-        $checkApplication = $DmiRejectedApplLogs->find('all', array('conditions'=>$condition_arr,'order'=>'id desc'))->first();
-		return $checkApplication;
+		$conn = ConnectionManager::get('default');
+        $stmt1 = $conn->execute("SELECT t1.* FROM dmi_rejected_appl_logs t1 Inner JOIN (SELECT MAX(id) AS id FROM dmi_rejected_appl_logs WHERE is_appeal_granted IS NULL GROUP BY customer_id,appl_type HAVING $condition) t2 ON t1.id= t2.id");
+        $appl_arr = $stmt1 ->fetchAll('assoc');
+        return $appl_arr;
 	}
 
 
@@ -4256,22 +4271,32 @@ class CustomfunctionsComponent extends Component {
 	//Description: Returns Appeal Details.
 	//@Author : Akash Joshi
 	//Date : 28 July 2023
-	public function getAppealDetails($username,$appeal_id=null){
-        $appealApplication=null;
-        $condition_arr=null;
+	public function getAppealDetails($username, $appeal_id = null)
+{
+    $conditionArr = [];
 
-        if($appeal_id != null){
-        $condition_arr= array('appeal_id IS'=>$appeal_id);
-        }
-        elseif($username !=null ){
-        $DmiRejectedApplLogs = TableRegistry::getTableLocator()->get('DmiRejectedApplLogs');
-        $condition_arr= array('customer_id IS'=>$username);
-        $checkApplication = $DmiRejectedApplLogs->find('all', array('conditions'=>$condition_arr,'order'=>'id desc'))->first();
-		$condition_arr= array('appeal_id IS'=>$checkApplication['appeal_id']);
-        }
-        $DmiAplFormDetails = TableRegistry::getTableLocator()->get('DmiAplFormDetails');
-        $appealApplication = $DmiAplFormDetails->find('all', array('conditions'=>$condition_arr,'order'=>'id desc'))->first();
-        return $appealApplication;
-	}
+    if ($appeal_id !== null) {
+        $conditionArr['appeal_id'] = $appeal_id;
+    } elseif ($username !== null) {
+        $dmiRejectedApplLogs = TableRegistry::getTableLocator()->get('DmiRejectedApplLogs');
+
+        $appealIdsArray = $dmiRejectedApplLogs->find()
+            ->select(['appeal_id'])
+            ->where(['customer_id' => $username])
+            ->extract('appeal_id')
+            ->toArray();
+
+        $conditionArr['appeal_id IN'] = $appealIdsArray;
+    }
+
+    $dmiAplFormDetails = TableRegistry::getTableLocator()->get('DmiAplFormDetails');
+    $appealApplication = $dmiAplFormDetails->find()
+        ->where($conditionArr)
+        ->order(['id' => 'desc'])
+        ->toArray();
+
+    return $appealApplication;
+}
+
 
 }

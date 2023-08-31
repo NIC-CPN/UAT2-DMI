@@ -40,7 +40,7 @@
 	</tr>
 
     <tr>
-		<td><br>Subject: Grant of appeal application.</td><br>
+		<td><br>Subject: Grant of appeal application for candidate ID <?php echo $customer_id; ?></td><br>
 	</tr>
 
     <tr>
@@ -48,7 +48,7 @@
 	</tr>
 
     <tr>
-		<td><br>We have granted approval for your appeal application which you initiated against your candidate ID <?php echo $customer_id; ?>.<br><br></td>
+		<td><br>We have granted approval for your appeal application which you initiated against your application(Application Type <u><?php echo $associated_rejected_app_title ?></u>)  .<br><br></td>
 	</tr>
         
 </table>

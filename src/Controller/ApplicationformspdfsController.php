@@ -106,8 +106,10 @@ class ApplicationformspdfsController extends AppController{
 
 			$pdfPrefix = 'CHM-';
 		}
+		//Joshi, Akash [30-08-2023], Multiple Appeal can be raised for single customer hence need to add associated
+		//Application type in Naming convention, to  distinguish
         elseif($application_type==12){
-			$pdfPrefix = 'APL-';
+			$pdfPrefix = 'APL-'.$this->Session->read('associated_rejected_app_type').'-';
 		}
 		 //added if else for chemist application use rearranged id given format added by laxmi B. on 15-12-2022
          if($_SESSION['application_type']==4){
@@ -4691,6 +4693,7 @@ class ApplicationformspdfsController extends AppController{
                 $this->loadModel('DmiCustomers');
                 $this->loadModel('DmiDistricts');
                 $this->loadModel('DmiStates');
+				$this->loadModel('DmiApplicationTypes');
                 $customer_id = $this->Session->read('username');
                 $this->set('customer_id',$customer_id);
 
@@ -4718,10 +4721,26 @@ class ApplicationformspdfsController extends AppController{
                 $firm_state_name = $this->DmiStates->getStateNameById($firmData['state']);
                 $this->set('firm_state_name',$firm_state_name);
                 //
-                $rejectApplicationDetails = $this->Customfunctions->isApplicationRejected($customer_id);
-                $this->set('rejection_date',$rejectApplicationDetails['created']);
+				$associated_rejected_app_type = $this->Session->read('associated_rejected_app_type');
+               	$associated_rejected_app_title = $this->DmiApplicationTypes->find()
+            							    		->select(['application_type'])
+         										    ->where(['id' => $associated_rejected_app_type])
+         										    ->first();
+				$this->set('associated_rejected_app_title',$associated_rejected_app_title['application_type']);
+                $rejectApplicationDetails = $this->Customfunctions->isApplicationRejected($customer_id,$associated_rejected_app_type);
+                
+				if (!empty($rejectApplicationDetails)) {
+					$firstRejectedApplication = reset($rejectApplicationDetails);
+					$this->set('rejection_date',$firstRejectedApplication['created']);
+				}
                 //
                 $this->generateApplicationPdf('/Applicationformspdfs/appealFormPdf');
+
+				//Mark final submission in appeal table....
+				$this->loadModel('DmiAplFormDetails');
+                $this->DmiAplFormDetails->markAppealSubmitted($customer_id,$associated_rejected_app_type);
+
+				$this->loadModel('DmiAplFormDetails');
             }
 
 			/** Author: Akash Joshi
@@ -4735,6 +4754,8 @@ class ApplicationformspdfsController extends AppController{
                 $this->loadModel('DmiCustomers');
                 $this->loadModel('DmiDistricts');
                 $this->loadModel('DmiStates');
+				$this->loadModel('DmiRejectedApplLogs');
+				$this->loadModel('DmiAplFormDetails');
 				$customer_id=$this->Session->read('customer_id');
                 $username = $this->Session->read('username');
                 $this->set('customer_id',$customer_id);
@@ -4763,10 +4784,34 @@ class ApplicationformspdfsController extends AppController{
                 $firm_state_name = $this->DmiStates->getStateNameById($firmData['state']);
                 $this->set('firm_state_name',$firm_state_name);
                 //
-                $rejectApplicationDetails = $this->Customfunctions->isApplicationRejected($customer_id);
-                $this->set('rejection_date',$rejectApplicationDetails['created']);
+				//Get Appeal
+				$associated_latest_appeal=$this->DmiAplFormDetails->getLatestAppeal($customer_id);
+				//
+				$associated_rejected_app_title = $this->DmiApplicationTypes->find()
+            							    		->select(['application_type'])
+         										    ->where(['id' => $associated_latest_appeal['associated_appl_type']])
+         										    ->first();
+				$this->set('associated_rejected_app_title',$associated_rejected_app_title);
+
+                $rejectApplicationDetails = $this->Customfunctions->isApplicationRejected($customer_id,$associated_latest_appeal['associated_appl_type']);
+                
+				if (!empty($rejectApplicationDetails)) {
+					$firstRejectedApplication = reset($rejectApplicationDetails);
+					$this->set('rejection_date',$firstRejectedApplication['created']);
+				}
                 //
                 $this->generateGrantCerticatePdf('/Applicationformspdfs/grantAppealPdf');
+
+				//Updating appeal grant status in rejected logs table - Joshi, Akash 24/09/2023
+				
+				$newEntity = $this->DmiRejectedApplLogs->newEntity(array(
+					'id'=>$rejectApplicationDetails['id'],
+					'is_appeal_granted'=>"yes"
+				));
+				$this->DmiRejectedApplLogs->save($newEntity);
+
+				//Making  entry of Grant op. in table called: AppealFormDetails
+				$this->DmiAplFormDetails->updateAppealStatus($associated_latest_appeal['id'],"Granted");
             }
 }
 ?>
