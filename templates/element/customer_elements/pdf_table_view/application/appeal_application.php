@@ -48,11 +48,12 @@
                     echo $dateTime->format('d/m/Y'); ?></td>
                     <td><?php
                      $status = $each_record['status'];
+                     $associated_appl_type=$each_record['associated_appl_type'];
                     echo $status; ?></td>
                     <td>
-                       <a title="Open" target="blank" href="<?php echo $this->request->getAttribute("webroot");?>application/application-type/12" ><span class="glyphicon glyphicon-new-window"></span></a>
+                       <a title="Open" target="blank" href="<?php echo $this->request->getAttribute("webroot");?>application/application-type/12?associated-rejectedapp=<?php echo $associated_appl_type?>" ><span class="glyphicon glyphicon-new-window"></span></a>
                     </td>
-                    <td ><?php echo $appl_mapping[$each_record['associated_appl_type']]; ?></td>
+                    <td ><?php echo $appl_mapping[$associated_appl_type]; ?></td>
                 </tr>
                 <?php } ?>
                 </tbody>

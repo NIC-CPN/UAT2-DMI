@@ -72,20 +72,17 @@
 	}
     	// Fetch form section all details
 	public function sectionFormDetails($customer_id){
+		
+		
 		//Joshi, Akash:- Specific condition for appeal, as single customer can have multiple appeals...[28-08-2023]
-		$associated_rejected_app_type=$_SESSION['associated_rejected_app_type'];
-	
-		//sectionFormDetails can be called from DMI user as well, at that time associated rejected application won't be available
-		$isApplicant=!empty($associated_rejected_app_type);
-		$condition= array();
-		if($isApplicant)
-		{
-			$condition=array('customer_id IS'=>$customer_id,'associated_appl_type'=>$associated_rejected_app_type);
+		$isApplicant = !empty($_SESSION['associated_rejected_app_type']);
+		$condition = ['customer_id IS' => $customer_id];
+		
+		//Joshi, Akash:- If request comes from Applicant side then pull associated_appl_type to filter out the data.
+		if ($isApplicant) {
+    		$condition['associated_appl_type'] = $_SESSION['associated_rejected_app_type'];
 		}
-		else{
-			//Need to fetch latest for DMI officials/officer.
-			$condition=array('customer_id IS'=>$customer_id);	
-		}
+
 		$form_fields_details = $this->find('all', array('conditions'=>$condition,'order'=>'id desc'))->first();
 
 		if(empty($form_fields_details)){
@@ -100,6 +97,10 @@
 										);
 
 		}
+		elseif (!isset($_SESSION['appeal_id']) && isset($form_fields_details['appeal_id'])) {
+			$_SESSION['appeal_id'] = $form_fields_details['appeal_id'];
+		}
+		
 		return array($form_fields_details);
 	}
 
@@ -166,7 +167,7 @@
 
 			$appealId=$section_form_details[0]['appeal_id'];
             $appealId=empty($appealId)?$this->generateAppealID($customer_id, $associated_rejected_app_type):$appealId;
-
+            $_SESSION['appeal_id']=$appealId;
             //In Case of Update, Need to put ID, at above lines we are fetching Max ID in case of referred back,
             //however we have to keep track of id for update case as well.
             if(empty($max_id) &&  !(empty($this->$section_form_details) || empty($this->$section_form_details[0])))
@@ -327,7 +328,7 @@
 			'modified'=>date('Y-m-d H:i:s'),
             'appeal_id' =>$forms_data['appeal_id'],
             'status' => $forms_data['status'],
-            'supported_documents' => $forms_data['supported_documents'],
+            'supported_documents' => $forms_data['supported_document'],
 			'associated_appl_type' =>$forms_data['associated_appl_type']
 		));
 

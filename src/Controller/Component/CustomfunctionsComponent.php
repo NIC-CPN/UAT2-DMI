@@ -748,12 +748,21 @@ class CustomfunctionsComponent extends Component {
 
 			} else {
 
+				$conditionArr = [
+					'customer_id' => $customer_id,
+					'status' => 'pending',
+					'current_level' => 'level_1',
+					'created' => date('Y-m-d H:i:s'),
+					'modified' => date('Y-m-d H:i:s')
+				];
+				
+				// Adding one more filed value to handle appeal application, Joshi, Akash [31-08-2023]
+				if ($application_type == 12 && $this->Session->check('appeal_id')) {
+					$conditionArr['appeal_id'] = $this->Session->read('appeal_id');
+				}
+				
 				// Enter the record in final submit table
-				$Dmi_final_submit_Entity = $Dmi_final_submit->newEntity(array('customer_id'=>$customer_id,
-																				'status'=>'pending',
-																				'current_level'=>'level_1',
-																				'created'=>date('Y-m-d H:i:s'),
-																				'modified'=>date('Y-m-d H:i:s')));
+				$Dmi_final_submit_Entity = $Dmi_final_submit->newEntity($conditionArr);
 
 				if ($Dmi_final_submit->save($Dmi_final_submit_Entity)) {
 
@@ -789,12 +798,21 @@ class CustomfunctionsComponent extends Component {
 							$ro_email_id = $this->getApplRegOfficeId($customer_id,$application_type);
 
 						}
-
-						$Dmi_allocation_Entity = $Dmi_allocation->newEntity(array('customer_id'=>$customer_id,
-																					'level_3'=>$ro_email_id,
-																					'current_level'=>$ro_email_id,
-																					'created'=>date('Y-m-d H:i:s'),
-																					'modified'=>date('Y-m-d H:i:s')));
+						
+						$conditionArr = [
+							'customer_id'=>$customer_id,
+							'level_3'=>$ro_email_id,
+							'current_level'=>$ro_email_id,
+							'created'=>date('Y-m-d H:i:s'),
+							'modified'=>date('Y-m-d H:i:s')
+						];
+						
+						// Adding one more filed value to handle appeal application, Joshi, Akash [31-08-2023]
+						if ($application_type == 12 && $this->Session->check('appeal_id')) {
+							$conditionArr['appeal_id'] = $this->Session->read('appeal_id');
+						}
+						
+						$Dmi_allocation_Entity = $Dmi_allocation->newEntity($conditionArr);
 						$Dmi_allocation->save($Dmi_allocation_Entity);
 
 						$user_email_id = $ro_email_id;
@@ -4271,31 +4289,21 @@ class CustomfunctionsComponent extends Component {
 	//Description: Returns Appeal Details.
 	//@Author : Akash Joshi
 	//Date : 28 July 2023
-	public function getAppealDetails($username, $appeal_id = null)
+	public function getAppealDetails($customer_id, $appeal_id = null)
 {
-    $conditionArr = [];
 
-    if ($appeal_id !== null) {
-        $conditionArr['appeal_id'] = $appeal_id;
-    } elseif ($username !== null) {
-        $dmiRejectedApplLogs = TableRegistry::getTableLocator()->get('DmiRejectedApplLogs');
+    if(empty($customer_id)){
+		return array();
+	  }
+	$condition= "customer_id = '".$customer_id."'";
+	if($appeal_id !== null){
+		$condition=$condition." and appeal_id = '".$appeal_id."'";
+	}
+	$conn = ConnectionManager::get('default');
+	$stmt1 = $conn->execute("SELECT t1.* FROM dmi_apl_form_details t1 Inner JOIN (SELECT MAX(id) AS id FROM dmi_apl_form_details GROUP BY customer_id,appeal_id HAVING $condition) t2 ON t1.id= t2.id");
+	$appl_arr = $stmt1 ->fetchAll('assoc');
+	return $appl_arr;
 
-        $appealIdsArray = $dmiRejectedApplLogs->find()
-            ->select(['appeal_id'])
-            ->where(['customer_id' => $username])
-            ->extract('appeal_id')
-            ->toArray();
-
-        $conditionArr['appeal_id IN'] = $appealIdsArray;
-    }
-
-    $dmiAplFormDetails = TableRegistry::getTableLocator()->get('DmiAplFormDetails');
-    $appealApplication = $dmiAplFormDetails->find()
-        ->where($conditionArr)
-        ->order(['id' => 'desc'])
-        ->toArray();
-
-    return $appealApplication;
 }
 
 

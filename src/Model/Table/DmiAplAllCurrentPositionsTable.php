@@ -31,7 +31,8 @@
 			'customer_id'=>$customer_id,
 			'current_level'=>$current_level,
 			'current_user_email_id'=>$user_email_id,
-			'created'=>date('Y-m-d H:i:s')		 
+			'created'=>date('Y-m-d H:i:s'),
+			'appeal_id'=>$_SESSION['appeal_id']		 
 		 ));
 		 $this->save($Entity);
 		

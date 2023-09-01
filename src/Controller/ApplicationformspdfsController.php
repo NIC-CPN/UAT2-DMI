@@ -163,16 +163,19 @@ class ApplicationformspdfsController extends AppController{
 					//changed file path from temp to files
 					$file_path = '/testdocs/DMI/applications/'.$folderName.'/'.$rearranged_id.'('.$current_pdf_version.')'.'.pdf';
 
-					$Dmi_app_pdf_record_entity = $Dmi_app_pdf_record->newEntity(array(
-
+					$conditionArr =[
 						'customer_id'=>$customer_id,
 						'pdf_file'=>$file_path,
 						'date'=>date('Y-m-d H:i:s'),
 						'pdf_version'=>$current_pdf_version,
 						'created'=>date('Y-m-d H:i:s'),
 						'modified'=>date('Y-m-d H:i:s')
-
-					));
+					];
+					// Adding one more filed value to handle appeal application, Joshi, Akash [31-08-2023]
+				if ($application_type == 12 && $this->Session->check('appeal_id')) {
+					$conditionArr['appeal_id'] = $this->Session->read('appeal_id');
+				}
+					$Dmi_app_pdf_record_entity = $Dmi_app_pdf_record->newEntity($conditionArr);
 
 					$Dmi_app_pdf_record->save($Dmi_app_pdf_record_entity);
 
@@ -190,17 +193,19 @@ class ApplicationformspdfsController extends AppController{
 					$filename = $_SERVER["DOCUMENT_ROOT"].$file_path;
 
 					$this->callTcpdf($all_data_pdf,'F',$customer_id,'new');//on 23-01-2020 with save mode
-
-					$Dmi_app_pdf_record_entity = $Dmi_app_pdf_record->newEntity(array(
-
+					$conditionArr =[
 						'customer_id'=>$customer_id,
 						'pdf_file'=>$file_path,
 						'date'=>date('Y-m-d H:i:s'),
 						'pdf_version'=>$current_pdf_version,
 						'created'=>date('Y-m-d H:i:s'),
 						'modified'=>date('Y-m-d H:i:s')
-
-					));
+					];
+				// Adding one more filed value to handle appeal application, Joshi, Akash [31-08-2023]
+				if ($application_type == 12 && $this->Session->check('appeal_id')) {
+					$conditionArr['appeal_id'] = $this->Session->read('appeal_id');
+				}
+					$Dmi_app_pdf_record_entity = $Dmi_app_pdf_record->newEntity($conditionArr);
 					$Dmi_app_pdf_record->save($Dmi_app_pdf_record_entity);
 
 					$this->redirect('/customers/secondary-home');
@@ -4736,11 +4741,12 @@ class ApplicationformspdfsController extends AppController{
                 //
                 $this->generateApplicationPdf('/Applicationformspdfs/appealFormPdf');
 
-				//Mark final submission in appeal table....
-				$this->loadModel('DmiAplFormDetails');
-                $this->DmiAplFormDetails->markAppealSubmitted($customer_id,$associated_rejected_app_type);
-
-				$this->loadModel('DmiAplFormDetails');
+				//Mark final submission in appeal table.... Joshi, Akash [31-08-2023]
+				if($this->Session->read('with_esign')=='no' || $this->Session->read('with_esign')=='yes'){
+					$this->loadModel('DmiAplFormDetails');
+                    $this->DmiAplFormDetails->markAppealSubmitted($customer_id,$associated_rejected_app_type);
+				}
+				
             }
 
 			/** Author: Akash Joshi
