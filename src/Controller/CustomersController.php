@@ -2527,11 +2527,30 @@ class CustomersController extends AppController {
 				//Joshi, Akash. Need to pass flag to disable appeal creation, if there is appeal already is in progress..
 				$grantDateCondition = $this->Customfunctions->returnGrantDateCondition($customer_id,12);
 
-		    	$InProcessAppeal = $this->DmiAplFinalSubmits->find('all', array('conditions' => array('customer_id IS' => $customer_id, $grantDateCondition)))->first();
-		    	$this->set('InProcessAppeal', $InProcessAppeal);
-
 				
-                $appeal_details = $this->Customfunctions->getAppealDetails($customer_id);
+			   // Find the latest final submitted appeal
+				$latestFinalSubmittedAppeal = $this->DmiAplFinalSubmits->find('all', [
+    				'conditions' => [
+    			    'customer_id' => $customer_id,
+   				     $grantDateCondition,
+   						 ],
+						])->first();
+
+				if (!empty($latestFinalSubmittedAppeal)) {
+    				// Find the appeal details for the latest final submitted appeal in the 'In Process' status
+    				$appeal_details = $this->DmiAplFormDetails->find('all', [
+    			    'conditions' => [
+   			        'appeal_id' => $latestFinalSubmittedAppeal['appeal_id'],
+  			        'status' => 'In Process',
+   					     ],
+    			    'order' => 'id desc',
+    			])->first();
+
+    			// Set the 'InProcessAppeal' variable
+   				 $this->set('InProcessAppeal', $appeal_details);
+				}
+
+				$appeal_details = $this->Customfunctions->getAppealDetails($customer_id);
 
                 //Creating a key-value map using appeal_id as the key
 				$appealMap = [];

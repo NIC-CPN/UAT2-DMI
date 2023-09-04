@@ -2468,19 +2468,52 @@ class DashboardController extends AppController{
 			}else{
 				$appl_type_id['id']=1;
 			}
+			$conditionArr=['appl_type' => $appl_type_id['id'],
+			'form_type' => $form_type,
+			'customer_id' => $customer_id,
+			'by_user' => $this->Session->read('username'),
+			'remark' => $remark,
+			'created' => date('Y-m-d H:i:s')];
+	
+
+			//TODO: Perform appeal related task - Joshi, Akash [02-09-2023]
+			if ($appl_type_id['id'] == 12 && $this->Session->check('appeal_id')) {
+				$appeal_id = $this->Session->read('appeal_id');
+			    $conditionArr['appeal_id'] = 'Linked-'.$appeal_id;
+				// Update rejected applications in DmiRejectedApplLogs
+				$original_reject_application = $this->DmiRejectedApplLogs
+					->find('all', ['conditions' => ['appeal_id IN' => $appeal_id]])
+					->first();
 			
-
+				if ($original_reject_application) {
+					$originalRejectedAppUpdation = $this->DmiRejectedApplLogs->patchEntity(
+						$original_reject_application,
+						['is_appeal_granted' => 'no']
+					);
+					$this->DmiRejectedApplLogs->save($originalRejectedAppUpdation);
+				}
+			
+				// Update status in DmiAplFormDetails
+				$appealIdList = $this->DmiAplFormDetails
+					->find('list', ['conditions' => ['appeal_id IN' => $appeal_id]])
+					->toArray();
+			
+				foreach ($appealIdList as $appealID) {
+					$appealApplication = $this->DmiAplFormDetails->patchEntity(
+						$this->DmiAplFormDetails->get($appealID),
+						[
+							'status' => 'Rejected',
+							'modified' => date('Y-m-d H:i:s')
+						]
+					);
+					$this->DmiAplFormDetails->save($appealApplication);
+				}
+			}
+			
+			
+		
 			//insert record in reject log table
-			$rejectlogEntity = $this->DmiRejectedApplLogs->NewEntity(array(
-
-				'appl_type' => $appl_type_id['id'],
-				'form_type' => $form_type,
-				'customer_id' => $customer_id,
-				'by_user' => $this->Session->read('username'),
-				'remark' => $remark,
-				'created' => date('Y-m-d H:i:s')
-
-			));
+			$rejectlogEntity = $this->DmiRejectedApplLogs->NewEntity($conditionArr);
 
 			$this->DmiRejectedApplLogs->save($rejectlogEntity);
 			echo '~'.$this->Session->read('for_sub_tab').'~';

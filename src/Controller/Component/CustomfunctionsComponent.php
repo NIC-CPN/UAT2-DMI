@@ -3767,7 +3767,7 @@ class CustomfunctionsComponent extends Component {
 			$condition=$condition." and appl_type = '".$appl_type."'";
         }
 		$conn = ConnectionManager::get('default');
-        $stmt1 = $conn->execute("SELECT t1.* FROM dmi_rejected_appl_logs t1 Inner JOIN (SELECT MAX(id) AS id FROM dmi_rejected_appl_logs WHERE is_appeal_granted IS NULL GROUP BY customer_id,appl_type HAVING $condition) t2 ON t1.id= t2.id");
+        $stmt1 = $conn->execute("SELECT t1.* FROM dmi_rejected_appl_logs t1 Inner JOIN (SELECT MAX(id) AS id FROM dmi_rejected_appl_logs WHERE ( is_appeal_granted IS NULL or is_appeal_granted = 'no' ) GROUP BY customer_id,appl_type HAVING $condition) t2 ON t1.id= t2.id");
         $appl_arr = $stmt1 ->fetchAll('assoc');
         return $appl_arr;
 	}

@@ -151,14 +151,16 @@
 				$customer_reply_date = '';
 				$cr_comment_ul = null;
 			}
-            $appealStatus='';
+            
 			if (empty($section_form_details[0]['created'])) {
 				$created = date('Y-m-d H:i:s');
-                $appealStatus = "In Process";
+               
             } else {
 				//added date function on 31-05-2021 by Amol to convert date format, as saving null
 				$created = $CustomersController->Customfunctions->changeDateFormat($section_form_details[0]['created']);
 			}
+			
+			$appealStatus = $section_form_details[0]['status'] ?: "In Process";
 
             
 
@@ -170,9 +172,9 @@
             $_SESSION['appeal_id']=$appealId;
             //In Case of Update, Need to put ID, at above lines we are fetching Max ID in case of referred back,
             //however we have to keep track of id for update case as well.
-            if(empty($max_id) &&  !(empty($this->$section_form_details) || empty($this->$section_form_details[0])))
+            if(empty($max_id) &&  !(empty($section_form_details) || empty($section_form_details[0])))
             {
-                $max_id= $this->$section_form_details[0]['id'];
+                $max_id= $section_form_details[0]['id'];
             }
 			
             $newEntity = $this->newEntity(array(
@@ -328,7 +330,7 @@
 			'modified'=>date('Y-m-d H:i:s'),
             'appeal_id' =>$forms_data['appeal_id'],
             'status' => $forms_data['status'],
-            'supported_documents' => $forms_data['supported_document'],
+            'supported_document' => $forms_data['supported_document'],
 			'associated_appl_type' =>$forms_data['associated_appl_type']
 		));
 

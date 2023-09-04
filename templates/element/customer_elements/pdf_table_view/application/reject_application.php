@@ -54,17 +54,23 @@
                     //6. If any appeal is in progress then stop new appeal creation.
 
                       $is_apl_submitted='';
-                      if(!empty($appealMap)){
+                      $form_status='';
+                      if(!empty($appealMap) && !empty($each_record['appeal_id'])){
                         $appealDetailInfo=$appealMap[$each_record['appeal_id']];
                         if(!empty($appealDetailInfo)){
                            $is_apl_submitted=$appealDetailInfo['is_final_submitted'];
+                           $form_status=$appealDetailInfo['form_status'];
                         }
                       }
-                      if(!empty($is_apl_submitted) && $is_apl_submitted =='yes')  { ?>
+                     
+                      if($rejected_appl_type_id==12){ ?>
+                        Not Applicable
+                      <?php }
+                      elseif($form_status =='referred_back' || (!empty($is_apl_submitted) && $is_apl_submitted =='yes'))  { ?>
                         <a target="blank" href="<?php echo $this->request->getAttribute("webroot");?>application/application-type/12?associated-rejectedapp=<?php echo $rejected_appl_type_id?>" class="nav-link">Appeal Reference</a>
                       <?php }
                       elseif(hasCutoffDatePassed($cutoffDate))  { ?>
-                        Appeal deadline has passed.
+                        Appeal deadline has passed!
                       <?php }
                       elseif (empty($InProcessAppeal))
                       {
