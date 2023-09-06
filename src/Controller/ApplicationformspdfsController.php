@@ -4807,7 +4807,7 @@ class ApplicationformspdfsController extends AppController{
             							    		->select(['application_type'])
          										    ->where(['id' => $associated_latest_appeal['associated_appl_type']])
          										    ->first();
-				$this->set('associated_rejected_app_title',$associated_rejected_app_title);
+				$this->set('associated_rejected_app_title',$associated_rejected_app_title['application_type']);
 
                 $rejectApplicationDetails = $this->Customfunctions->isApplicationRejected($customer_id,$associated_latest_appeal['associated_appl_type']);
                 $rejectedApplicationID='';
