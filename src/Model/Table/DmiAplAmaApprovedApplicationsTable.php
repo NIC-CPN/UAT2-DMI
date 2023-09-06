@@ -24,9 +24,15 @@
 		$customer_id = $_SESSION['customer_id'];
 		$user_email_id = $_SESSION['username'];
 		$user_once_no = $_SESSION['once_card_no'];
-		
+		$appeal_id = $_SESSION['appeal_id'];
+		$condArr=[
+			'customer_id IS'=>$customer_id
+		];
+		if(!empty($appeal_id)){
+			$condArr['appeal_id'] = $appeal_id;
+		}
 		//this query and condition added on 04-08-2017 by Amol to save "approved" comment on approved button
-		$find_ho_allocation = $Dmi_ho_allocation->find('all',array('conditions'=>array('customer_id IS'=>$customer_id)))->first();	
+		$find_ho_allocation = $Dmi_ho_allocation->find('all',array('conditions'=>$condArr))->first();	
 		
 		$from_user = 'ama';
 		$to_user = 'jt_ama';
@@ -46,7 +52,8 @@
 					'created'=>date('Y-m-d H:i:s'),
 					'modified'=>date('Y-m-d H:i:s'),
 					'from_user'=>$from_user,
-					'to_user'=>$to_user
+					'to_user'=>$to_user,
+					'appeal_id' => $appeal_id
 			
 			));
 			
@@ -57,9 +64,13 @@
 					   But comment window and "send_to" option not available when application open. So we update the entery in "Dmi_ho_allocation"
 					   to show the comment window and "send_to option"  (Done By pravin 10-01-2018)
 					*/
+					//JOshi, Akash -
+					//TODO : Need to add appeal_id in where clause...
 					$Dmi_ho_allocation->updateAll(array('current_level' => "$comment_to_email_id"),array('customer_id' => $customer_id));
 
-					$current_level = 'level_4';								
+					$current_level = 'level_4';	
+					
+					//Joshi, Akash- currentUserUpdate on All app work on latest id hence no need to alter anything for Appeal
 					$Dmi_all_applications_current_position->currentUserUpdate($customer_id,$comment_to_email_id,$current_level);//call to custom function from model		
 							
 				//entry in AMA approval table
@@ -70,7 +81,8 @@
 					'user_once_no'=>$user_once_no,
 					'status'=>'approved',
 					'created'=>date('Y-m-d H:i:s'),
-					'modified'=>date('Y-m-d H:i:s')
+					'modified'=>date('Y-m-d H:i:s'),
+					'appeal_id' => $appeal_id
 					
 				));
 				

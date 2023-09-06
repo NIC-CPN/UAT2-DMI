@@ -229,13 +229,18 @@ class RomoioapplicantcommunicationactionsComponent extends Component {
 
 					}else{
 
-						$Dmi_final_submit_entity = $Dmi_final_submit->newEntity(array(
+						//Joshi, Akash Need to push Appeal ID for maintaining uniqueness across muplitple appeals
+						$condArr=[
 							'customer_id'=>$customer_id,
 							'status'=>'approved',
 							'current_level'=>$current_level,
 							'created'=>date('Y-m-d H:i:s'),
 							'modified'=>date('Y-m-d H:i:s')
-						));
+						];
+						if ($application_type == 12 && $this->Session->check('appeal_id')) {
+							$condArr['appeal_id'] = $this->Session->read('appeal_id');
+						}
+						$Dmi_final_submit_entity = $Dmi_final_submit->newEntity($condArr);
 
 						$Dmi_final_submit->save($Dmi_final_submit_entity);
 						

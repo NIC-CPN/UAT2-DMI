@@ -42,7 +42,13 @@
 	public function currentUserUpdate($customer_id,$user_email_id,$current_level)
 	{
 		
-		$find_row_id = $this->find('all',array('fields'=>'id', 'conditions'=>array('customer_id IS'=>$customer_id),'order'=>array('id DESC')))->first();
+		$conditionArr=[
+			'customer_id IS'=>$customer_id
+		];
+		if(!empty($_SESSION['appeal_id'])){
+			$conditionArr['appeal_id'] = $_SESSION['appeal_id'];
+		}
+		$find_row_id = $this->find('all',array('fields'=>'id', 'conditions'=>$conditionArr,'order'=>array('id DESC')))->first();
 		$row_id = $find_row_id['id'];
 		
 		$newEntity = $this->newEntity(array(

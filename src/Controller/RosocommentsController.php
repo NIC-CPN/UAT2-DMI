@@ -383,29 +383,40 @@ class RosocommentsController extends AppController{
 			$find_ama_user = $this->DmiUserRoles->find('all',array('fields'=>'user_email_id','conditions'=>array('ama'=>'yes',/*'super_admin'=>null*/)))->first();
 			$ama_email_id = $find_ama_user['user_email_id'];
 			
-			$Dmi_ho_allocation_Entity = $this->$ho_allocation_table->newEntity(array(								
-				'customer_id'=>$customer_id,
-				'dy_ama'=>$dy_ama_email_id,
-				'jt_ama'=>$jt_ama_email_id,
-				'ama'=>$ama_email_id,
-				'current_level'=>$dy_ama_email_id,
-				'created'=>date('Y-m-d H:i:s'),
-				'modified'=>date('Y-m-d H:i:s')
-			)); 
-			
-			$this->$ho_allocation_table->save($Dmi_ho_allocation_Entity);	
-			
+			//Joshi, Akash[05/09/2023], Appeal ID will be required to stamp in ho allocation table so that multiple Appeals can be distinguished easily. 
+			 
 			$final_report_status = 'ho_allocated';
 			$user_email_id = $dy_ama_email_id;		
 			$current_level = 'level_4';
 			
-			$Dmi_report_final_submit_Entity = $this->$final_report_table->newEntity(array(
-				'customer_id'=>$customer_id,
-				'status'=>$final_report_status,
-				'current_level'=>'level_3',
-				'created'=>date('Y-m-d H:i:s'),
-				'modified'=>date('Y-m-d H:i:s')				
-			));
+			 $hoAllocEntityArr=['customer_id'=>$customer_id,
+			 'dy_ama'=>$dy_ama_email_id,
+			 'jt_ama'=>$jt_ama_email_id,
+			 'ama'=>$ama_email_id,
+			 'current_level'=>$dy_ama_email_id,
+			 'created'=>date('Y-m-d H:i:s'),
+			 'modified'=>date('Y-m-d H:i:s')];
+
+			 $finalReportEntityArr=[
+			'customer_id'=>$customer_id,
+			 'status'=>$final_report_status,
+			 'current_level'=>'level_3',
+			 'created'=>date('Y-m-d H:i:s'),
+			 'modified'=>date('Y-m-d H:i:s')
+			 ];
+
+			//Appeal Support - Joshi, Akash
+			if($application_type==12){
+				$appeal_id = $this->Session->read('appeal_id');
+		        $hoAllocEntityArr['appeal_id']=$appeal_id;
+				$finalReportEntityArr['appeal_id']=$appeal_id;
+			 }			
+			 			
+			$Dmi_ho_allocation_Entity = $this->$ho_allocation_table->newEntity($hoAllocEntityArr); 
+			
+			$this->$ho_allocation_table->save($Dmi_ho_allocation_Entity);	
+			
+			$Dmi_report_final_submit_Entity = $this->$final_report_table->newEntity($finalReportEntityArr);
 		
 			if($this->$final_report_table->save($Dmi_report_final_submit_Entity)){
 				

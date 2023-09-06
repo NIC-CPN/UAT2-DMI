@@ -715,12 +715,20 @@ class CustomfunctionsComponent extends Component {
 			$list_payment_id = $Dmi_payment_tb->find('list', array('valueField'=>'id', 'conditions'=>array('customer_id IS'=>$customer_id, $grantDateCondition)))->toArray();
 
 			if (!empty($final_submit_entry_id)) {
+                //Joshi, Akash- Need to push Appeal ID[ 05-09-2023]
+				$entityArr=[
+					'customer_id'=>$customer_id,
+					'status'=>'replied',
+					'current_level'=>'level_3',
+					'created'=>date('Y-m-d H:i:s'),
+					'modified'=>date('Y-m-d H:i:s')
+				];
 
-				$Dmi_final_submit_Entity = $Dmi_final_submit->newEntity(array('customer_id'=>$customer_id,
-																				'status'=>'replied',
-																				'current_level'=>'level_3',
-																				'created'=>date('Y-m-d H:i:s'),
-																				'modified'=>date('Y-m-d H:i:s')));
+				// Adding one more filed value to handle appeal application, Joshi, Akash [31-08-2023]
+				if ($application_type == 12 && $this->Session->check('appeal_id')) {
+					$entityArr['appeal_id'] = $this->Session->read('appeal_id');
+				}
+				$Dmi_final_submit_Entity = $Dmi_final_submit->newEntity($entityArr);
 
 				if ($Dmi_final_submit->save($Dmi_final_submit_Entity)) {
 
@@ -841,13 +849,21 @@ class CustomfunctionsComponent extends Component {
 	// Method to Entry for referred back for applicant in final submit table
 	public function sentToApplicant($customer_id,$current_level,$final_submit_table) {
 
-		$Dmi_final_submit = TableRegistry::getTableLocator()->get($final_submit_table);
-
-			$Dmi_final_submit_Entity = $Dmi_final_submit->newEntity(array('customer_id'=>$customer_id,
-																			'status'=>'referred_back',
-																			'current_level'=>$current_level,
-																			'created'=>date('Y-m-d H:i:s'),
-																			'modified'=>date('Y-m-d H:i:s')));
+			$Dmi_final_submit = TableRegistry::getTableLocator()->get($final_submit_table);
+            //Joshi, Akash Need to push Appeal ID in final submit table for Audit trail.
+			$application_type = $this->Session->read('application_type');
+			// Adding one more filed value to handle appeal application, Joshi, Akash [31-08-2023]
+			$entityArr=[
+				'customer_id'=>$customer_id,
+				'status'=>'referred_back',
+				'current_level'=>$current_level,
+				'created'=>date('Y-m-d H:i:s'),
+				'modified'=>date('Y-m-d H:i:s')
+			];
+			if ($application_type == 12 && $this->Session->check('appeal_id')) {
+				$entityArr['appeal_id'] = $this->Session->read('appeal_id');
+			}
+			$Dmi_final_submit_Entity = $Dmi_final_submit->newEntity($entityArr);
 
 		if ($Dmi_final_submit->save($Dmi_final_submit_Entity)) { return true;}
 	}

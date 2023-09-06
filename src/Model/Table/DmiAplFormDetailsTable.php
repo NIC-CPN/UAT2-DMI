@@ -227,7 +227,7 @@
         return $dmiRejectedApplLogs->save($newEntity);
     }
     public function generateAppealID($customer_id,$associated_rejected_app_type){
-        return 'APL-'.$customer_id.'-'.$associated_rejected_app_type;
+        return '12-'.$associated_rejected_app_type;
     }
 
 

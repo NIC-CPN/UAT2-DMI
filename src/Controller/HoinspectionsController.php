@@ -221,6 +221,10 @@ use App\Network\Response\Response;
 				$section_details['grant_pdf']='grantAdpCertificate';
 
 			}
+			elseif($application_type == 12)
+			{
+				$section_details['grant_pdf']='grantAppealPdf';
+			}
 			$this->set('section_details',$section_details);
 
 
@@ -1020,15 +1024,20 @@ use App\Network\Response\Response;
 				
 					//add record in final submit table
 					if($final_submit_status != 'approved'){
+                        //Joshi, Akash - Need to push Appeal ID
 
-						$Dmi_final_submit_entity = $this->$Dmi_final_submit->newEntity(array(
-
+						$entityArr=[
 							'customer_id'=>$customer_id,
 							'status'=>'approved',
 							'created'=>date('Y-m-d H:i:s'),
 							'modified'=>date('Y-m-d H:i:s'),
 							'current_level'=>'level_2'
-						));
+						];
+						// Adding one more filed value to handle appeal application, Joshi, Akash [31-08-2023]
+						if ($application_type == 12 && $this->Session->check('appeal_id')) {
+							$entityArr['appeal_id'] = $this->Session->read('appeal_id');
+						}
+						$Dmi_final_submit_entity = $this->$Dmi_final_submit->newEntity($entityArr);
 
 						$this->$Dmi_final_submit->save($Dmi_final_submit_entity);
 					
