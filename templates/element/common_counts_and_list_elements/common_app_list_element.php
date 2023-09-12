@@ -31,9 +31,28 @@ $current_action = $this->request->getParam('action');
 	<tbody>
 		<?php 
 			$i=1;
+			//Joshi, Akash [12-09-2023] Added below logic to fetch Appeal ID
+			function fetchAppealID($linkStr){
+				$position = strpos($linkStr, 'appeal_id=');
+				if ($position !== false) {
+    				$substring = substr($linkStr, $position + strlen('appeal_id='));
+    				$parameterArray = explode('&', $substring);
+    				$appeal_id = $parameterArray[0];
+    				return $appeal_id;
+				}
+				return '';
+			}
 			foreach($appl_list_array as $each){ //print_r($each); ?>
 			<tr>
-				<td data-search="<?php echo $each['appl_type']; ?>" data-order="<?php echo $each['appl_type']; ?>"><?php echo $this->Form->control('appl_type',array('type'=>'text', 'id'=>'appl_type'.$i, 'value'=>$each['appl_type'], 'label'=>false, 'readonly'=>true)); ?></td>
+			
+				<td data-search="<?php echo $each['appl_type']; ?>" data-order="<?php echo $each['appl_type']; ?>"><?php echo $this->Form->control('appl_type',array('type'=>'text', 'id'=>'appl_type'.$i, 'value'=>$each['appl_type'], 'label'=>false, 'readonly'=>true)); ?>
+				<?php
+				if($each['appl_type'] =='Appeal'){
+					$appeal_ID=fetchAppealID($each['appl_view_link']);
+					?>
+                 	<input type="hidden" name="appealID<?php echo $i;?>" id="appealID<?php echo $i;?>" value="<?php echo $appeal_ID; ?>">
+				<?php } ?>
+			   </td>
 				<td data-search="<?php echo $each['customer_id']; ?>" data-order="<?php echo $each['customer_id']; ?>"><?php echo $this->Form->control('customer_id',array('type'=>'text', 'id'=>'customer_id'.$i, 'value'=>$each['customer_id'], 'label'=>false, 'readonly'=>true)); ?></td>
 				<td><?php echo "<span class='badge'>".$each['firm_name']."</span>";?></td>
 				

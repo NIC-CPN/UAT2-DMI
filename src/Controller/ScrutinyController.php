@@ -91,6 +91,11 @@ class ScrutinyController extends AppController{
 		$this->Session->write('application_type',$application_type);
 		$this->Session->delete('section_id');
 
+		//Joshi, Akash : Added below logic for Appeal Support.
+		if($application_type==12){
+			$appeal_id = $this->request->getQuery('appeal_id');
+			$this->Session->write('appeal_id',$appeal_id);
+		}
 		$this->redirect('/scrutiny/form-scrutiny');
 	}
 

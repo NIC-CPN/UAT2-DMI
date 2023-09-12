@@ -1275,6 +1275,19 @@
 				}
 			}
 			
+
+			//TODO: Support for Appeal
+			if($appl_type_id == 12 && !empty($each_alloc['appeal_id'])){
+              //Akash Joshi, Need to push flag either associated app or Appeal-ID which can help request to identify Appeal in unique way.
+			  $appealId = $each_alloc['appeal_id'];
+			  $linkKeys = ['appl_edit_link', 'appl_view_link'];
+			  foreach ($linkKeys as $linkKey) {
+				  if (!empty($list_array[$linkKey])) {
+					  $list_array[$linkKey] .= '?appeal_id=' . $appealId;
+				  }
+			  }
+			  
+			}
 			return $list_array;
 		}
 		
@@ -1612,7 +1625,10 @@
 									
 									
 									//$list_array = $this->getCommonListingVariables($i,$each_alloc,$for_level,$for_status,$appl_type_id,$appl_type,null,$sub_tab);
-								
+								     //TODO: Joshi, Akash - Append appeal id.
+									if($appl_type_id ==12){
+									 $this->appendAppealIDInEditandViewLink($each_alloc['appeal_id'],$appl_view_link,$appl_edit_link);
+									}
 									//if(!empty($list_array)){
 										$appl_list_array[$i]['appl_type'] = $appl_type;
 										$appl_list_array[$i]['customer_id'] = $customer_id.'-'.$form_type;
@@ -1672,6 +1688,10 @@
 									}
 									
 									//if(!empty($list_array)){
+										//TODO: Joshi, Akash - Append appeal id.
+										if($appl_type_id ==12){
+											$this->appendAppealIDInEditandViewLink($each_alloc['appeal_id'],$appl_view_link,$appl_edit_link);
+										   }
 										$appl_list_array[$i]['appl_type'] = $appl_type;
 										$appl_list_array[$i]['customer_id'] = $customer_id.'-'.$form_type;
 										$appl_list_array[$i]['firm_name'] = $firm_name;
@@ -1734,6 +1754,10 @@
 									//$list_array = $this->getCommonListingVariables($i,$each_alloc,$for_level,$for_status,$appl_type_id,$appl_type,null,$sub_tab);
 								
 									//if(!empty($list_array)){
+										//TODO: Joshi, Akash - Append appeal id.
+										if($appl_type_id ==12){
+											$this->appendAppealIDInEditandViewLink($each_alloc['appeal_id'],$appl_view_link,$appl_edit_link);
+										   }
 										$appl_list_array[$i]['appl_type'] = $appl_type;
 										$appl_list_array[$i]['customer_id'] = $customer_id.'-'.$form_type;
 										$appl_list_array[$i]['firm_name'] = $firm_name;
@@ -1796,6 +1820,10 @@
 									//$list_array = $this->getCommonListingVariables($i,$each_alloc,$for_level,$for_status,$appl_type_id,$appl_type,null,$sub_tab);
 								
 									//if(!empty($list_array)){
+										//TODO: Joshi, Akash - Append appeal id.
+									if($appl_type_id ==12){
+										$this->appendAppealIDInEditandViewLink($each_alloc['appeal_id'],$appl_view_link,$appl_edit_link);
+									}
 										$appl_list_array[$i]['appl_type'] = $appl_type;
 										$appl_list_array[$i]['customer_id'] = $customer_id.'-'.$form_type;
 										$appl_list_array[$i]['firm_name'] = $firm_name;
@@ -1862,7 +1890,10 @@
 										$all_report_status = 'true';
 									}									
 									if($all_report_status == 'true'){
-										
+										//TODO: Joshi, Akash - Append appeal id.
+										if($appl_type_id ==12){
+											$this->appendAppealIDInEditandViewLink($each_alloc['appeal_id'],$appl_view_link,$appl_edit_link);
+										   }
 										$appl_list_array[$i]['appl_type'] = $appl_type;
 										$appl_list_array[$i]['customer_id'] = $customer_id.'-'.$form_type;
 										$appl_list_array[$i]['firm_name'] = $firm_name;
@@ -1966,7 +1997,15 @@
 				
 		}
 		
-		
+		function appendAppealIDInEditandViewLink($appeal_id, &$appl_view_link,&$appl_edit_link ) {
+
+			if (!empty($appeal_id)) {
+				$appl_view_link = !empty($appl_view_link) ? $appl_view_link . '?appeal_id=' . $appeal_id : '';
+				$appl_edit_link = !empty($appl_edit_link) ? $appl_edit_link . '?appeal_id=' . $appeal_id : '';
+			}
+			
+		}
+		 
 		
 	}
 	

@@ -2445,6 +2445,11 @@ class DashboardController extends AppController{
 
 			$appl_type = $_POST['appl_type'];
 			$customer_id = $_POST['customer_id'];
+			//Joshi, Akash - Added for Appeal Support
+			if($appl_type == 'Appeal'){
+				$appeal_id=$_POST['appeal_id'];
+				$this->Session->write('appeal_id',$appeal_id);
+			}
 			$this->set(compact('appl_type','customer_id'));
 			$this->render('/element/common_counts_and_list_elements/common_reject_appl_popup');
 
@@ -2460,7 +2465,7 @@ class DashboardController extends AppController{
 			$remark = htmlentities($_POST['remark'], ENT_QUOTES);
 			$this->loadModel('DmiApplicationTypes');
 			$this->loadModel('DmiRejectedApplLogs');
-			
+			$this->loadModel('DmiAplFormDetails');
 			//added on 18-07-2022 by Amol
 			//for old applications
 			if ($appl_type!='Old Appl') {

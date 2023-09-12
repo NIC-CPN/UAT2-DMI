@@ -581,12 +581,13 @@ $(document).ready(function () {
             function () {
               var appl_type = $("#appl_type" + p).val();
               var customer_id = $("#customer_id" + p).val();
-
+              //Joshi, Akash - Added for appeal Support
+              var appeal_id = $("#appealID" + p).val();
               $.ajax({
                 type: "POST",
                 async: true,
                 url: "../dashboard/open_reject_appl_popup",
-                data: { customer_id: customer_id, appl_type: appl_type },
+                data: { customer_id: customer_id, appl_type: appl_type, appeal_id: appeal_id },
                 beforeSend: function (xhr) {
                   // Add this line
                   $(".loader").show();
