@@ -4687,7 +4687,7 @@ class ApplicationformspdfsController extends AppController{
 			$this->redirect('/chemist/listOfChemistApplRalToRo');
 			}
 
-            /** Author: Akash Joshi
+                     /** Author: Akash Joshi
              * appealFormPdf
              *
              * @return void
@@ -4762,6 +4762,9 @@ class ApplicationformspdfsController extends AppController{
                 $this->loadModel('DmiStates');
 				$this->loadModel('DmiRejectedApplLogs');
 				$this->loadModel('DmiAplFormDetails');
+				$this->loadModel('DmiApplicationTypes');
+				$this->loadModel('DmiAplGrantCertificatePdfs');
+			
 				$customer_id=$this->Session->read('customer_id');
                 $username = $this->Session->read('username');
                 $this->set('customer_id',$customer_id);
@@ -4791,8 +4794,9 @@ class ApplicationformspdfsController extends AppController{
                 $this->set('firm_state_name',$firm_state_name);
                 //
 				//Get Appeal
+
 				$associated_latest_appeal=$this->DmiAplFormDetails->getLatestAppeal($customer_id);
-				//
+				$this->Session->write('latest_appeal_id',$associated_latest_appeal['appeal_id']);
 				$associated_rejected_app_title = $this->DmiApplicationTypes->find()
             							    		->select(['application_type'])
          										    ->where(['id' => $associated_latest_appeal['associated_appl_type']])
@@ -4800,24 +4804,31 @@ class ApplicationformspdfsController extends AppController{
 				$this->set('associated_rejected_app_title',$associated_rejected_app_title['application_type']);
 
                 $rejectApplicationDetails = $this->Customfunctions->isApplicationRejected($customer_id,$associated_latest_appeal['associated_appl_type']);
-                
+                $rejectedApplicationID='';
 				if (!empty($rejectApplicationDetails)) {
 					$firstRejectedApplication = reset($rejectApplicationDetails);
 					$this->set('rejection_date',$firstRejectedApplication['created']);
+					$rejectedApplicationID=$firstRejectedApplication['id'];
 				}
                 //
                 $this->generateGrantCerticatePdf('/Applicationformspdfs/grantAppealPdf');
-
 				//Updating appeal grant status in rejected logs table - Joshi, Akash 24/09/2023
-				
+				//Joshi, Akash:- Need to check grantpdf status for Appeal becuase this API is getting called for Preview mode as well.
+				$grantedData=$this->DmiAplGrantCertificatePdfs->find()
+													->select(['id'])
+         										    ->where(['appeal_id' => $associated_latest_appeal['appeal_id']])
+         										    ->first();
+													
+				if(!empty($grantedData)){
 				$newEntity = $this->DmiRejectedApplLogs->newEntity(array(
-					'id'=>$rejectApplicationDetails['id'],
-					'is_appeal_granted'=>"yes"
+							'id'=>$rejectedApplicationID,
+							'is_appeal_granted'=>"yes"
 				));
 				$this->DmiRejectedApplLogs->save($newEntity);
 
 				//Making  entry of Grant op. in table called: AppealFormDetails
 				$this->DmiAplFormDetails->updateAppealStatus($associated_latest_appeal['id'],"Granted");
+				}
             }
 }
 ?>

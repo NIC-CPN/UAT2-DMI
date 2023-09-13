@@ -2460,6 +2460,7 @@ class DashboardController extends AppController{
 			$remark = htmlentities($_POST['remark'], ENT_QUOTES);
 			$this->loadModel('DmiApplicationTypes');
 			$this->loadModel('DmiRejectedApplLogs');
+			$this->loadModel('DmiAplFormDetails');
 			
 			//added on 18-07-2022 by Amol
 			//for old applications
