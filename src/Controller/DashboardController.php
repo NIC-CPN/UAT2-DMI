@@ -2478,12 +2478,10 @@ class DashboardController extends AppController{
 	
 
 			//TODO: Perform appeal related task - Joshi, Akash [02-09-2023]
-			if ($appl_type_id['id'] == 12 && $this->Session->check('appeal_id')) {
-				$appeal_id = $this->Session->read('appeal_id');
-			    $conditionArr['appeal_id'] = 'Linked-'.$appeal_id;
+			if ($appl_type_id['id'] == 12) {
 				// Update rejected applications in DmiRejectedApplLogs
 				$original_reject_application = $this->DmiRejectedApplLogs
-					->find('all', ['conditions' => ['appeal_id IN' => $appeal_id]])
+					->find('all', ['conditions' => ['customer_id IN' => $customer_id],'order'=>'id desc'])
 					->first();
 			
 				if ($original_reject_application) {
@@ -2496,7 +2494,7 @@ class DashboardController extends AppController{
 			
 				// Update status in DmiAplFormDetails
 				$appealIdList = $this->DmiAplFormDetails
-					->find('list', ['conditions' => ['appeal_id IN' => $appeal_id]])
+					->find('list', ['conditions' => ['customer_id IN' => $customer_id]])
 					->toArray();
 			
 				foreach ($appealIdList as $appealID) {

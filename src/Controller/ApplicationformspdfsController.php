@@ -109,7 +109,7 @@ class ApplicationformspdfsController extends AppController{
 		//Joshi, Akash [30-08-2023], Multiple Appeal can be raised for single customer hence need to add associated
 		//Application type in Naming convention, to  distinguish
         elseif($application_type==12){
-			$pdfPrefix = 'APL-'.$this->Session->read('associated_rejected_app_type').'-';
+			$pdfPrefix = 'APL-';
 		}
 		 //added if else for chemist application use rearranged id given format added by laxmi B. on 15-12-2022
          if($_SESSION['application_type']==4){
@@ -171,10 +171,6 @@ class ApplicationformspdfsController extends AppController{
 						'created'=>date('Y-m-d H:i:s'),
 						'modified'=>date('Y-m-d H:i:s')
 					];
-					// Adding one more filed value to handle appeal application, Joshi, Akash [31-08-2023]
-				if ($application_type == 12 && $this->Session->check('appeal_id')) {
-					$conditionArr['appeal_id'] = $this->Session->read('appeal_id');
-				}
 					$Dmi_app_pdf_record_entity = $Dmi_app_pdf_record->newEntity($conditionArr);
 
 					$Dmi_app_pdf_record->save($Dmi_app_pdf_record_entity);
@@ -201,10 +197,6 @@ class ApplicationformspdfsController extends AppController{
 						'created'=>date('Y-m-d H:i:s'),
 						'modified'=>date('Y-m-d H:i:s')
 					];
-				// Adding one more filed value to handle appeal application, Joshi, Akash [31-08-2023]
-				if ($application_type == 12 && $this->Session->check('appeal_id')) {
-					$conditionArr['appeal_id'] = $this->Session->read('appeal_id');
-				}
 					$Dmi_app_pdf_record_entity = $Dmi_app_pdf_record->newEntity($conditionArr);
 					$Dmi_app_pdf_record->save($Dmi_app_pdf_record_entity);
 
@@ -4726,12 +4718,13 @@ class ApplicationformspdfsController extends AppController{
                 $firm_state_name = $this->DmiStates->getStateNameById($firmData['state']);
                 $this->set('firm_state_name',$firm_state_name);
                 //
-				$associated_rejected_app_type = $this->Session->read('associated_rejected_app_type');
-               	$associated_rejected_app_title = $this->DmiApplicationTypes->find()
-            							    		->select(['application_type'])
-         										    ->where(['id' => $associated_rejected_app_type])
-         										    ->first();
-				$this->set('associated_rejected_app_title',$associated_rejected_app_title['application_type']);
+				$associated_rejected_app_type = '1';
+				//$this->Session->read('associated_rejected_app_type')'';
+               	// $associated_rejected_app_title = $this->DmiApplicationTypes->find()
+            	// 						    		->select(['application_type'])
+         		// 								    ->where(['id' => $associated_rejected_app_type])
+         		// 								    ->first();
+				 $this->set('associated_rejected_app_title','New');
                 $rejectApplicationDetails = $this->Customfunctions->isApplicationRejected($customer_id,$associated_rejected_app_type);
                 
 				if (!empty($rejectApplicationDetails)) {
@@ -4797,13 +4790,10 @@ class ApplicationformspdfsController extends AppController{
 
 				$associated_latest_appeal=$this->DmiAplFormDetails->getLatestAppeal($customer_id);
 				$this->Session->write('latest_appeal_id',$associated_latest_appeal['appeal_id']);
-				$associated_rejected_app_title = $this->DmiApplicationTypes->find()
-            							    		->select(['application_type'])
-         										    ->where(['id' => $associated_latest_appeal['associated_appl_type']])
-         										    ->first();
-				$this->set('associated_rejected_app_title',$associated_rejected_app_title['application_type']);
+		
+				$this->set('associated_rejected_app_title','New');
 
-                $rejectApplicationDetails = $this->Customfunctions->isApplicationRejected($customer_id,$associated_latest_appeal['associated_appl_type']);
+                $rejectApplicationDetails = $this->Customfunctions->isApplicationRejected($customer_id,'1');
                 $rejectedApplicationID='';
 				if (!empty($rejectApplicationDetails)) {
 					$firstRejectedApplication = reset($rejectApplicationDetails);
@@ -4816,7 +4806,7 @@ class ApplicationformspdfsController extends AppController{
 				//Joshi, Akash:- Need to check grantpdf status for Appeal becuase this API is getting called for Preview mode as well.
 				$grantedData=$this->DmiAplGrantCertificatePdfs->find()
 													->select(['id'])
-         										    ->where(['appeal_id' => $associated_latest_appeal['appeal_id']])
+         										    ->where(['customer_id' => $customer_id])
          										    ->first();
 													
 				if(!empty($grantedData)){
