@@ -172,35 +172,14 @@ class RandomfunctionsComponent extends Component {
 								inner join (select max(id) id, customer_id from $finalSubmitTable group by customer_id) as fs on fs.customer_id = fss.customer_id and fs.id = fss.id) as fsr on fsr.customer_id = rj.customer_id
 								inner join (select max(id) id, customer_id from $DmiRejectedApplLogs group by customer_id) as maxall on maxall.customer_id = rj.customer_id and maxall.id = rj.id where rj.created > fsr.created");
 		$results = array();
-		$customerIdsArray = [];
+
 		if (!empty($stmt)) {
+
 			$results = $stmt ->fetchAll();
 			$results = array_column($results,'0');
-
-
-			//Joshi, Akash - Appeal Support
-             if(!empty($results)) { 			
-			//Joshi, Akash Adding below code to remove filter out granted rejected apps[Appeal Support]
-     		$appl_type_id = $each_flow['application_type'];
-			$rejectedApplLogsTable = TableRegistry::getTableLocator()->get('DmiRejectedApplLogs');
-			$subquery = $rejectedApplLogsTable->find()
-						->select(['id' => 'MAX(id)'])
-						->where(['OR' => [['is_appeal_granted IS NULL'], ['is_appeal_granted' => 'no']], 'appl_type' => $appl_type_id])
-						->group(['customer_id', 'appl_type']);
-
-			$results = $rejectedApplLogsTable->find()
-						->select(['customer_id'])
-						->where(['id IN' => $subquery])
-						->andWhere(['customer_id IN' => $results])
-						->toArray();
-			
-			// Extract customer_id values into an array
-			foreach ($results as $result) {
-    			$customerIdsArray[] = $result->customer_id;
-			}
-		  }
 		}
-		return $customerIdsArray;
+        //Joshi, Akash
+		return $results;
 	}
 
 
