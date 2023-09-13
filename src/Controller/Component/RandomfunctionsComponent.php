@@ -178,7 +178,7 @@ class RandomfunctionsComponent extends Component {
 			$results = $stmt ->fetchAll();
 			$results = array_column($results,'0');
 		}
-        //Joshi, Akash
+
 		return $results;
 	}
 

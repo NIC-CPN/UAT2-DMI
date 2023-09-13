@@ -1281,7 +1281,6 @@
 		
 		
 	//fetching records form DB current user level wise and requested status box clicked(Pending, Replied etc..)
-	//TODO: Need to add associated rejected Application in edit link and view link for appeal application [Joshi, Akash 06/09/2023]
 		public function fetchRecords($for_level,$for_status,$sub_tab=null){
 			
 			$conn = ConnectionManager::get('default');

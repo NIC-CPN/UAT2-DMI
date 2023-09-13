@@ -494,8 +494,7 @@ class ApplicationformspdfsController extends AppController{
 				//for normal grant
 				}else{
 
-					//Joshi, Akash Need to add Appeal_ID in grantpdf record table
-					$entityArr=[
+					$grantPdfRecords = $Dmi_grant_pdf_record->newEntity(array(
 						'customer_id'=>$customer_id,
 						'user_email_id'=>$user_email_id,
 						'user_once_no'=>$user_once_no,
@@ -504,12 +503,8 @@ class ApplicationformspdfsController extends AppController{
 						'pdf_version'=>$current_pdf_version,
 						'created'=>date('Y-m-d H:i:s'),
 						'modified'=>date('Y-m-d H:i:s')
-					];
-					if ($application_type == 12 && $this->Session->check('latest_appeal_id')) {
-						$entityArr['appeal_id'] = $this->Session->read('latest_appeal_id');	
-						}
-						$grantPdfRecords = $Dmi_grant_pdf_record->newEntity($entityArr);
-						$Dmi_grant_pdf_record->save($grantPdfRecords);
+					));
+					$Dmi_grant_pdf_record->save($grantPdfRecords);
 				}
 
 			}else{
@@ -529,7 +524,6 @@ class ApplicationformspdfsController extends AppController{
 				$this->callTcpdf($all_data_pdf,'F',$customer_id,'grant');
 
 				$file_path = '/testdocs/DMI/temp/'.$rearranged_id.'('.$current_pdf_version.')'.'.pdf';
-				
 				$grantPdfRecords = $Dmi_grant_pdf_record->newEntity(array(
 					'customer_id'=>$customer_id,
 					'user_email_id'=>$user_email_id,//DDO user id will be saved, and on esign RO user id will be replaced
@@ -4768,9 +4762,6 @@ class ApplicationformspdfsController extends AppController{
                 $this->loadModel('DmiStates');
 				$this->loadModel('DmiRejectedApplLogs');
 				$this->loadModel('DmiAplFormDetails');
-				$this->loadModel('DmiApplicationTypes');
-				$this->loadModel('DmiAplGrantCertificatePdfs');
-			
 				$customer_id=$this->Session->read('customer_id');
                 $username = $this->Session->read('username');
                 $this->set('customer_id',$customer_id);
@@ -4800,9 +4791,8 @@ class ApplicationformspdfsController extends AppController{
                 $this->set('firm_state_name',$firm_state_name);
                 //
 				//Get Appeal
-
 				$associated_latest_appeal=$this->DmiAplFormDetails->getLatestAppeal($customer_id);
-				$this->Session->write('latest_appeal_id',$associated_latest_appeal['appeal_id']);
+				//
 				$associated_rejected_app_title = $this->DmiApplicationTypes->find()
             							    		->select(['application_type'])
          										    ->where(['id' => $associated_latest_appeal['associated_appl_type']])
@@ -4810,31 +4800,24 @@ class ApplicationformspdfsController extends AppController{
 				$this->set('associated_rejected_app_title',$associated_rejected_app_title['application_type']);
 
                 $rejectApplicationDetails = $this->Customfunctions->isApplicationRejected($customer_id,$associated_latest_appeal['associated_appl_type']);
-                $rejectedApplicationID='';
+                
 				if (!empty($rejectApplicationDetails)) {
 					$firstRejectedApplication = reset($rejectApplicationDetails);
 					$this->set('rejection_date',$firstRejectedApplication['created']);
-					$rejectedApplicationID=$firstRejectedApplication['id'];
 				}
                 //
                 $this->generateGrantCerticatePdf('/Applicationformspdfs/grantAppealPdf');
+
 				//Updating appeal grant status in rejected logs table - Joshi, Akash 24/09/2023
-				//Joshi, Akash:- Need to check grantpdf status for Appeal becuase this API is getting called for Preview mode as well.
-				$grantedData=$this->DmiAplGrantCertificatePdfs->find()
-													->select(['id'])
-         										    ->where(['appeal_id' => $associated_latest_appeal['appeal_id']])
-         										    ->first();
-													
-				if(!empty($grantedData)){
+				
 				$newEntity = $this->DmiRejectedApplLogs->newEntity(array(
-							'id'=>$rejectedApplicationID,
-							'is_appeal_granted'=>"yes"
+					'id'=>$rejectApplicationDetails['id'],
+					'is_appeal_granted'=>"yes"
 				));
 				$this->DmiRejectedApplLogs->save($newEntity);
 
 				//Making  entry of Grant op. in table called: AppealFormDetails
 				$this->DmiAplFormDetails->updateAppealStatus($associated_latest_appeal['id'],"Granted");
-				}
             }
 }
 ?>
