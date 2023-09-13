@@ -39,9 +39,16 @@
                      $dateTime = DateTime::createFromFormat('d/m/Y H:i:s', $date);
                     echo $dateTime->format('d/m/Y'); ?></td>
                     <td><?php
+                    //Applicable Appeal only for New Application Type
+                    if($rejected_appl_type_id==1){
                     $cutoffDate =  date ("Y-m-d", strtotime ( $dateTime->format('d-m-Y') ."+30 days"));
                     $deadlineDateForDisplay = date ("d/m/Y", strtotime ( $dateTime->format('d-m-Y') ."+30 days"));
-                    echo $deadlineDateForDisplay; ?>
+                    echo $deadlineDateForDisplay; 
+                    }
+                    else{
+                    echo "Not Applicable";
+                    }
+                    ?>
                     </td>
                     <td>
                     <?php
@@ -63,7 +70,7 @@
                         }
                       }
                      
-                      if($rejected_appl_type_id==12){ ?>
+                      if($rejected_appl_type_id!=1){ ?>
                         Not Applicable
                       <?php }
                       elseif($form_status =='referred_back' || (!empty($is_apl_submitted) && $is_apl_submitted =='yes'))  { ?>

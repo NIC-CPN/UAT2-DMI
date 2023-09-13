@@ -10,21 +10,19 @@
                     <th>Appeal Submission Date</th>
                     <th>Status</th>
                     <th>Appeal Application</th>
-                    <th>Original Application Type</th>
                 </tr>
                 </thead>
                 <tbody>
                 <?php
                
                 foreach ($appeal_details as $each_record) { 
-                  $pdfs=$supportingDocuments[$each_record['appeal_id']];
                     ?>
                 <tr>
                     <td class="boldtext"><?php echo $each_record['customer_id']; ?></td>
                     <td>
     <table>
         <?php
-        foreach ($pdfs as $apl_pdf_record) {
+        foreach ($apl_pdfs_records as $apl_pdf_record) {
             $split_file_path = explode("/", $apl_pdf_record['pdf_file']);
             $file_name = end($split_file_path);
             ?>
@@ -53,7 +51,6 @@
                     <td>
                        <a title="Open" target="blank" href="<?php echo $this->request->getAttribute("webroot");?>application/application-type/12?associated-rejectedapp=<?php echo $associated_appl_type?>" ><span class="glyphicon glyphicon-new-window"></span></a>
                     </td>
-                    <td ><?php echo $appl_mapping[$associated_appl_type]; ?></td>
                 </tr>
                 <?php } ?>
                 </tbody>

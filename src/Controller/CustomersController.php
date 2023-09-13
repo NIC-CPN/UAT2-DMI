@@ -2557,20 +2557,8 @@ class CustomersController extends AppController {
 				foreach ($appeal_details as $appealDetail) {
     				$appealMap[$appealDetail['appeal_id']] = $appealDetail;
 				}
-	
-	     	    $supportingDocuments = []; 
-		
-		        foreach ($apl_pdfs_records as $record) {
-			    $appealId = $record->appeal_id;
-			
-			    if (!isset($supportingDocuments[$appealId])) {
-			    	$supportingDocuments[$appealId] = [];
-			   }	
-			   $supportingDocuments[$appealId][] = $record;
-	        	}
 				
 		    	$this->set('appealMap', $appealMap);
-				$this->set('supportingDocuments', $supportingDocuments);
 			}
     }
 }
