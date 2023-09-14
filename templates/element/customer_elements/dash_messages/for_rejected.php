@@ -22,8 +22,11 @@
 				if($appl_type == 12){
 					$appSpecificMsg = 'The decision regarding the appeal is considered as definitive and binding, and as a result, no further appeals can be initiated to contest this decision. ';
 				}
+				elseif($appl_type ==1 ){
+					$appSpecificMsg ='Applicant can appeal within 30 Days of rejection of their New Application.';	
+				}
 				else{
-					$appSpecificMsg ='Applicant can appeal within 30 Days of rejection';	
+					$appSpecificMsg ='';	
 				}
 				$message = <<<EOD
 					Application for $appl_mapping[$appl_type]  is rejected by the competent Agmark Authority

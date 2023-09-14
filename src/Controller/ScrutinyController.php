@@ -655,7 +655,7 @@ class ScrutinyController extends AppController{
 				//if all Sections scrutinized then stay on same page and show forward to HO btn directly
 				// # If Block Statement Updated for the Application Type 8 (ADP Flow)- Shankhpal [17/11/2022]
 
-				if((($export_unit_status == 'yes' || $NablDate != null) && $firm_type == 3 ) || ($firm_type == 3 && $export_unit_status == 'yes' && $application_type == 8)){
+				if((($export_unit_status == 'yes' || $NablDate != null) && $firm_type == 3 ) || ($firm_type == 3 && $export_unit_status == 'yes' && $application_type == 8) || ($application_type==12 && $office_type == 'RO')){
 
 					$this->Romoioapplicantcommunicationactions->ifApplicationIsExport($customer_id,$application_type);
 					
@@ -736,7 +736,6 @@ class ScrutinyController extends AppController{
 				$message_theme = "success";
 				$redirect_to =  '../dashboard/home';
 			}
-
 		}
 
 		$this->set('all_section_status',$all_section_status);

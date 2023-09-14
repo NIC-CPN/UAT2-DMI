@@ -208,7 +208,7 @@ class RomoioapplicantcommunicationactionsComponent extends Component {
 						} 
 						//Added for Appeal Support, Inspection is not required for appeal hence instead of loading home we need to stay on scrutiny page 
 						//to provide provision of forwarding.. 
-						elseif ($office_type=='RO' && ($application_type==9 || $application_type==12)) {
+						elseif ($office_type=='RO' && $application_type==9) {
 							return 2;
 						}
 						

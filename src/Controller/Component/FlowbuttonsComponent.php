@@ -352,10 +352,6 @@ class FlowbuttonsComponent extends Component {
 						$ForwarBtn = 'HO';					
 					}
 				}
-			} elseif($office_type == 'RO' && $applicationType == 12)
-			{
-				//Added for Appeal Support - Joshi, Akash 
-                $ForwarBtn = 'HO';	
 			}
 
 		}

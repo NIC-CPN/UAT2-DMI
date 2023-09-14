@@ -221,6 +221,11 @@ use App\Network\Response\Response;
 				$section_details['grant_pdf']='grantAdpCertificate';
 
 			}
+			elseif($application_type == 12)
+			{
+				//Added for Appeal Support - Joshi, Akash
+				$section_details['grant_pdf']='grantAppealPdf';
+			}
 			$this->set('section_details',$section_details);
 
 
