@@ -80,7 +80,7 @@
                         Appeal deadline has passed!
                       <?php }
                       elseif(!empty($InprocessMsg)){ ?>
-                        Another Application in Progress
+                        Another Application in Progress!
                       <?php }
                       elseif (empty($InProcessAppeal))
                       {
