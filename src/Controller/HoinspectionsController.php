@@ -1125,8 +1125,22 @@ use App\Network\Response\Response;
 			$roles = $this->DmiUserRoles->find('all',array('conditions'=>array('user_email_id'=>$username)))->first();
 			
 			//get last rejected records from each appl type from reject log table
-			$get_rejected = $this->DmiRejectedApplLogs->find('all',array('order'=>array('id DESC')))->toArray();
 
+			//Joshi, Akash - Appeal support, if Appeal gets grant then application no longer treated as rejected.
+			//$get_rejected = $this->DmiRejectedApplLogs->find('all',array('order'=>array('id DESC')))->toArray();
+
+						
+				$query = $this->DmiRejectedApplLogs->find('all')
+  								  ->where([
+    								  'id IN' => $this->DmiRejectedApplLogs->find()
+       									     ->select(['id' => 'MAX(ID)'])
+      									      ->group(['customer_id', 'appl_type']),
+      								  'OR' => [
+     								       'is_appeal_granted IS NULL',
+    								       'is_appeal_granted' => 'no',
+       									 ],
+  								  ]);
+			$get_rejected = $query->all();
 			$appl_array = array();
 			$i=0;
 			foreach($get_rejected as $each){	

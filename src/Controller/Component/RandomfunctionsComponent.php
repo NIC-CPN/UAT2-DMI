@@ -206,23 +206,33 @@ class RandomfunctionsComponent extends Component {
              if(!empty($results)) { 			
 			//Joshi, Akash Adding below code to remove filter out granted rejected apps[Appeal Support]
      		$appl_type_id = $each_flow['application_type'];
+			//As Appeal only can be raised for New type of application hence adding below condition.
+			if($appl_type_id == 1){
 			$rejectedApplLogsTable = TableRegistry::getTableLocator()->get('DmiRejectedApplLogs');
-			$subquery = $rejectedApplLogsTable->find()
-						->select(['id' => 'MAX(id)'])
-						->where(['OR' => [['is_appeal_granted IS NULL'], ['is_appeal_granted' => 'no']], 'appl_type' => $appl_type_id])
-						->group(['customer_id', 'appl_type']);
+			$query = $rejectedApplLogsTable->find('all')
+   					 ->select(['customer_id'])
+   					 ->where([
+   						     'id IN' => $rejectedApplLogsTable->find()
+    					        ->select(['id' => 'MAX(ID)'])
+    					        ->where([
+     					           'customer_id IN' => $results,
+      					           'appl_type' => $appl_type_id,
+     				      		 ])
+        			    		->group(['customer_id', 'appl_type']),
+       					'OR' => [
+         				   'is_appeal_granted IS NULL',
+           				   'is_appeal_granted' => 'no',
+      					  ],
+    					]);
 
-			$results = $rejectedApplLogsTable->find()
-						->select(['customer_id'])
-						->where(['id IN' => $subquery])
-						->andWhere(['customer_id IN' => $results])
-						->toArray();
-			
+			$result = $query->all();
+
 			// Extract customer_id values into an array
-			foreach ($results as $result) {
+				foreach ($results as $result) {
     			$customerIdsArray[] = $result->customer_id;
+				}
+			  }
 			}
-		  }
 		}
 		return $customerIdsArray;
 	}	
